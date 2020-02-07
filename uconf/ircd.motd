@@ -1,12 +1,13 @@
-El Staff de SeguRed le desea una feliz estancia en nuestro servidor... :)
-Recuerde cumplir las reglas para que todo le vaya bien.
-- 0,4=> Entradas al iRC:
-- 0,4~ Server: irc.segured.org Puertos: 443, 6667, +6697 Web: http://irc.segured.org
-- 0,4=> Estimados Usuarios:
-- 0,4 ~ En caso de tener mal comportamiento en el Canal
-- 0,4   será obligado a dejar el mismo o el servidor.
-- 0,4 ~ Puede registrarse usando el siguiente comando:
-- 0,4   /msg nickserv register clave correo
-- 0,4 ~ Puede indentificarse con el siguiente comando:
-- 0,4   /msg nickserv identify clave ó /identify clave
-- 0,4=> Si presenta dudas, quejas o sugerencias dirigirse a los Operadores: ~ & @ %.
+################################################################
+## IRC: irc.segured.org, irc.cropersviral.com 
+## Puertos: 443, 6667, +6697 
+## Webchat: http://irc.segured.org http://irc.cropersviral.com
+################################################################
+
+## Recuerde:
+ - Cumplir con las reglas /rules.
+ - Puede registrarse escribiendo:
+   /msg nickserv register clave correo
+ - Puede indentificarse escribiendo:
+   /msg nickserv identify clave ó /identify clave
+## Ante dudas, quejas o sugerencias dirigirse a los Operadores: @ %.
