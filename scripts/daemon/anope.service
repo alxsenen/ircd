@@ -1,0 +1,13 @@
+[Unit]
+Description=Description for iRC Services
+After=network.target
+
+[Service]
+Type=simple
+User=irc
+ExecStart=/opt/scripts/services/start.sh
+ExecRestart=/opt/scripts/services/restart.sh
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=Description for UnrealIRCd
+After=network.target
+
+[Service]
+Type=simple
+User=irc
+ExecStart=/opt/scripts/unrealircd/start.sh
+ExecRestart=/opt/scripts/unrealircd/restart.sh
+ExecStop=/opt/scripts/unrealircd/stop.sh
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
