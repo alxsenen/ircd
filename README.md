@@ -89,10 +89,12 @@ let generateProject = project => {
 
 ## Basic configurations
 
-- hostnamectl set-hostname irc
-- adduser ircd
-- apt update
-- apt upgrade -y
+```shell
+$ sudo hostnamectl set-hostname irc
+$ sudo adduser ircd
+$ sudo apt update; apt upgrade -y
+$ sudo echo "ircd	ALL=(ALL:ALL) ALL" >> /etc/sudoers 
+```
 
 ### Clone
 
