@@ -6,8 +6,8 @@
 
 ## Table of Contents (Optional)
 
-- [Basic configurations](#basic-confs)
-- [Features](#features)
+- [Basic](#basic)
+- [Setup](#setup)
 - [Contributing](#contributing)
 - [Team](#team)
 - [FAQ](#faq)
@@ -45,7 +45,7 @@ $ git clone https://github.com/alxsenen/ircd.git
 
 ```shell
 $ cd ~/core/unrealircd
-$ ./Config **# presionamos [enter] en todas las opciones**
+$ ./Config # presionamos [enter] en todas las opciones
 $ make; make install
 $ cd ~/unrealircd; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv uconf conf
 ```
@@ -54,13 +54,12 @@ $ cd ~/unrealircd; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv uconf conf
 
 ```shell
 $ cd ~/core/anope
-$ ./Config **# presionamos [enter] en todas las opciones**
-$ ./extras **# para habilitar los módulos [ m_mysql.cpp | m_sql_log.cpp | m_ssl_openssl.cpp | stats ]**
+$ ./Config # presionamos [enter] en todas las opciones
+$ ./extras # para habilitar los módulos [ m_mysql.cpp | m_sql_log.cpp | m_ssl_openssl.cpp | stats ]
 $ make; make install
 $ cd ~/services; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv sconf conf
 ```
 
-- For all the possible languages that support syntax highlithing on GitHub (which is basically all of them), refer <a href="https://github.com/github/linguist/blob/master/lib/linguist/languages.yml" target="_blank">here</a>.
 
 ---
 
