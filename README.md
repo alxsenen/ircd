@@ -4,20 +4,19 @@
 
 # irc.segured.org Configurations
 
-## Table of Contents (Optional)
+## Table of Contents
 
 - [Basic](#basic)
+- [Clone](#clone)
 - [Setup](#setup)
-- [Contributing](#contributing)
 - [Team](#team)
 - [FAQ](#faq)
 - [Support](#support)
 - [License](#license)
 
-
 ---
 
-### Basic configurations
+### Basic
 
 ```shell
 $ hostnamectl set-hostname irc
@@ -30,7 +29,9 @@ $ echo "export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc
 $ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
 ```
 
-### Clone repositories required
+### Clone
+
+> Clone the required repositories
 
 ```shell
 $ mkdir core; cd core
@@ -39,9 +40,20 @@ $ git clone https://github.com/anope/anope.git
 $ git clone https://github.com/alxsenen/ircd.git
 ```
 
-### Setup of UnrealIRCd, Anope IRC Services
+> Extra git configurations
 
-> Setting UnrealIRCd and compile
+```shell
+git config --global user.email "alxsenen@gmail.com"
+git config --global user.name "Alex"
+```
+> Luego de clonar el repo le pasamos esta linea para guardar las credenciales:
+
+```shell
+git config credential.helper store
+```
+### Setup
+
+> Setting up UnrealIRCd and compile
 
 ```shell
 $ cd ~/core/unrealircd
@@ -50,7 +62,7 @@ $ make; make install
 $ cd ~/unrealircd; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv uconf conf
 ```
 
-> Setting Anope IRC Services
+> Setting up Anope IRC Services
 
 ```shell
 $ cd ~/core/anope
@@ -60,18 +72,22 @@ $ make; make install
 $ cd ~/services; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv sconf conf
 ```
 
-
 ---
 
-## Features
-## Usage (Optional)
-## Documentation (Optional)
-## Tests (Optional)
+## Start
 
-- Going into more detail on code and technologies used
-- I utilized this nifty <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet" target="_blank">Markdown Cheatsheet</a> for this sample `README`.
+> Start up UnrealIRCd Server
 
----
+```shell
+$ cd ~/unrealircd; ./unrealircd start
+```
+
+> Start up Anope IRC Services
+
+```shell
+$ cd ~/services; ./services
+```
+/*
 
 ## Contributing
 
@@ -142,11 +158,3 @@ Reach out to me at one of the following places!
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
 - Copyright 2020 © <a href="http://fvcproductions.com" target="_blank">FVCproductions</a>.
 
-
---
-# Otras configuraciones de git
-git config --global user.email "alxsenen@gmail.com"
-git config --global user.name "Alex"
-# Luego de clonar el repo le pasamos esta linea para guardar las credenciales:
-	git config credential.helper store
---
