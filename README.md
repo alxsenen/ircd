@@ -90,10 +90,13 @@ let generateProject = project => {
 ## Basic configurations
 
 ```shell
-$ sudo hostnamectl set-hostname irc
-$ sudo adduser ircd
-$ sudo apt update; apt upgrade -y
-$ sudo echo "ircd	ALL=(ALL:ALL) ALL" >> /etc/sudoers 
+$ hostnamectl set-hostname irc
+$ adduser ircd
+$ apt update; apt upgrade -y
+$ echo "ircd	ALL=(ALL:ALL) ALL" >> /etc/sudoers
+$ su - ircd
+$ export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc 
+$ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
 ```
 
 ### Clone
@@ -210,8 +213,7 @@ Reach out to me at one of the following places!
 
  Agrego el user ircd a sudo
 -- Edito ~/.bashrc y agrego las lines:
-	export LC_CTYPE=es_ES.UTF-8
-	export LC_ALL=es_ES.UTF-8
+	
 --
 su ircd
 sudo apt install curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev
