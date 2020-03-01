@@ -49,6 +49,34 @@ $ git config --global user.name "Alex"
 ```shell
 $ git config credential.helper store
 ```
+
+### MySQL
+
+> Stopping MySQL Server
+
+```shel
+/etc/init.d/mysql stop
+```
+> Setting up MySQL root password
+
+```shel
+/etc/init.d/mysql stop
+
+$ mysqld_safe --skip-grant-tables &
+$ mysql -uroot
+$ use mysql;
+$ update user set authentication_string=PASSWORD("mynewpassword") where User='root';
+$ flush privileges;
+$ quit
+```
+
+> Starting MySQL Server
+
+```shell
+$ sudo /etc/init.d/mysql stop
+$ sudo /etc/init.d/mysql start
+```
+
 ### Setup
 
 > Setting up UnrealIRCd and compile
