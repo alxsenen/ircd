@@ -118,13 +118,13 @@ $ cd ~/services; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv sconf conf
 
 ## Start
 
-> Start up UnrealIRCd Server
+> Starting UnrealIRCd Server
 
 ```shell
 $ cd ~/unrealircd; ./unrealircd start
 ```
 
-> Start up Anope IRC Services
+> Starting Anope IRC Services
 
 ```shell
 $ cd ~/services; ./services
@@ -135,5 +135,5 @@ $ cd ~/services; ./services
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
-- Copyright 2020 © <a href="http://fvcproductions.com" target="_blank">segured.org</a>.
+- Copyright 2020 © <a href="http://fvcproductions.com" target="_blank">irc.segured.org</a>.
 
