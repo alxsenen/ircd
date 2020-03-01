@@ -98,14 +98,16 @@ $ echo "ircd	ALL=(ALL:ALL) ALL" >> /etc/sudoers
 $ su - ircd
 $ echo "export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc 
 $ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
-$ mkdir core; cd core
 ```
 
 ### Clone repositories required
 
-- git clone [GitHub Pages](https://github.com/unrealircd/unrealircd.git)
-- git clone [GitHub Pages](https://github.com/anope/anope.git)
-- git clone [GitHub Pages](https://github.com/alxsenen/ircd.git)
+```shell
+$ mkdir core; cd core
+$ git clone https://github.com/unrealircd/unrealircd.git
+$ git clone https://github.com/anope/anope.git
+$ git clone https://github.com/alxsenen/ircd.git
+```
 
 ### Setup
 
