@@ -87,21 +87,25 @@ let generateProject = project => {
 
 ---
 
-## Basic configurations
+### Basic configurations
 
 ```shell
 $ hostnamectl set-hostname irc
 $ adduser ircd
 $ apt update; apt upgrade -y
+$ apt install curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev
 $ echo "ircd	ALL=(ALL:ALL) ALL" >> /etc/sudoers
 $ su - ircd
-$ export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc 
+$ echo "export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc 
 $ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
+$ mkdir core; cd core
 ```
 
-### Clone
+### Clone repositories required
 
-- Clone this repo to your local machine using `https://github.com/fvcproductions/SOMEREPO`
+- git clone [GitHub Pages](https://github.com/unrealircd/unrealircd.git)
+- git clone [GitHub Pages](https://github.com/anope/anope.git)
+- git clone [GitHub Pages](https://github.com/alxsenen/ircd.git)
 
 ### Setup
 
@@ -204,25 +208,6 @@ Reach out to me at one of the following places!
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
 - Copyright 2015 © <a href="http://fvcproductions.com" target="_blank">FVCproductions</a>.
 
-
-
-
-
-
-
-
- Agrego el user ircd a sudo
--- Edito ~/.bashrc y agrego las lines:
-	
---
-su ircd
-sudo apt install curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev
-mkdir core; cd core
---
-# Clonamos los repositorios de UnrealIRCd, Anope IRC Services e IRCd(Configuraciones se los servicios y servidor)
-git clone [GitHub Pages](https://github.com/unrealircd/unrealircd.git)
-git clone [GitHub Pages](https://github.com/anope/anope.git)
-git clone [GitHub Pages](https://github.com/alxsenen/ircd.git)
 --
 # Instalamos UnrealIRCd
 cd unrealircd
