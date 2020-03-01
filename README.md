@@ -41,19 +41,23 @@ $ git clone https://github.com/alxsenen/ircd.git
 
 ### Setup of UnrealIRCd, Anope IRC Services
 
-> Setting UnrealIRCd
+> Setting UnrealIRCd and compile
 
 ```shell
 $ cd ~/core/unrealircd
-$ ./Config
+$ ./Config # presionamos [enter] en todas las opciones
 $ make; make install
+$ cd ~/unrealircd; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv uconf conf
 ```
 
-> now install npm and bower packages
+> Setting Anope IRC Services
 
 ```shell
-$ npm install
-$ bower install
+$ cd ~/core/anope
+$ ./Config # presionamos [enter] en todas las opciones
+$ ./extras # para habilitar los módulos [ m_mysql.cpp | m_sql_log.cpp | m_ssl_openssl.cpp | stats ]
+$ make; make install
+$ cd ~/services; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv sconf conf
 ```
 
 - For all the possible languages that support syntax highlithing on GitHub (which is basically all of them), refer <a href="https://github.com/github/linguist/blob/master/lib/linguist/languages.yml" target="_blank">here</a>.
@@ -137,22 +141,9 @@ Reach out to me at one of the following places!
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
-- Copyright 2015 © <a href="http://fvcproductions.com" target="_blank">FVCproductions</a>.
+- Copyright 2020 © <a href="http://fvcproductions.com" target="_blank">FVCproductions</a>.
 
---
-# Instalamos UnrealIRCd
-cd unrealircd
-./Config # presionamos [enter] en todas las opciones
-make; make install
-cd ~/unrealircd; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv uconf conf
---
---
-# Instalamos Anope IRC Services
-cd anope
-./Config # presionamos [enter] en todas las opciones
-./extras # para habilitar los módulos [ m_mysql.cpp | m_sql_log.cpp | m_ssl_openssl.cpp | stats ]
-make; make install
-cd ~/services; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv sconf conf
+
 --
 # Otras configuraciones de git
 git config --global user.email "alxsenen@gmail.com"
