@@ -49,6 +49,50 @@ $ git config --global user.name "Alex"
 ```shell
 $ git config credential.helper store
 ```
+
+### MySQL
+
+> Stopping MySQL Server
+
+```shel
+/etc/init.d/mysql stop
+```
+> Setting up MySQL root password
+
+```shel
+/etc/init.d/mysql stop
+
+$ mysqld_safe --skip-grant-tables &
+$ mysql -uroot
+$ use mysql;
+$ update user set authentication_string=PASSWORD("mynewpassword") where User='root';
+$ flush privileges;
+$ quit
+```
+
+> Starting MySQL Server normally
+
+```shell
+$ sudo /etc/init.d/mysql stop
+$ sudo /etc/init.d/mysql start
+```
+
+> Setting up MySQL database for Anope IRC Services
+
+```shell
+$ CREATE DATABASE db_ircd;
+$ CREATE USER 'db_ircd'@'localhost' IDENTIFIED BY 'ircd*.2020';
+$ GRANT ALL PRIVILEGES ON * . * TO 'db_ircd'@'localhost';
+$ FLUSH PRIVILEGES;
+```
+
+> Setting up iptables rules allowing access by 443 port
+
+```shell
+iptables -t nat -I PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 6667
+iptables-save
+```
+
 ### Setup
 
 > Setting up UnrealIRCd and compile
@@ -74,13 +118,13 @@ $ cd ~/services; mv conf conf-orig; ln -s ~/core/ircd/uconf; mv sconf conf
 
 ## Start
 
-> Start up UnrealIRCd Server
+> Starting UnrealIRCd Server
 
 ```shell
 $ cd ~/unrealircd; ./unrealircd start
 ```
 
-> Start up Anope IRC Services
+> Starting Anope IRC Services
 
 ```shell
 $ cd ~/services; ./services
@@ -91,5 +135,5 @@ $ cd ~/services; ./services
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
-- Copyright 2020 © <a href="http://fvcproductions.com" target="_blank">segured.org</a>.
+- Copyright 2020 © <a href="http://fvcproductions.com" target="_blank">irc.segured.org</a>.
 
