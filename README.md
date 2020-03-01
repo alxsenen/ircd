@@ -77,6 +77,22 @@ $ sudo /etc/init.d/mysql stop
 $ sudo /etc/init.d/mysql start
 ```
 
+> Setting up MySQL database for Anope IRC Services
+
+```shell
+$ CREATE DATABASE db_ircd;
+$ CREATE USER 'db_ircd'@'localhost' IDENTIFIED BY 'ircd*.2020';
+$ GRANT ALL PRIVILEGES ON * . * TO 'db_ircd'@'localhost';
+$ FLUSH PRIVILEGES;
+```
+
+> Setting up iptables rules allowing access by 443 port
+
+```shell
+iptables -t nat -I PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 6667
+iptables-save
+```
+
 ### Setup
 
 > Setting up UnrealIRCd and compile
