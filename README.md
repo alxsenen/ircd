@@ -70,7 +70,7 @@ $ flush privileges;
 $ quit
 ```
 
-> Starting MySQL Server
+> Starting MySQL Server normally
 
 ```shell
 $ sudo /etc/init.d/mysql stop
