@@ -1,4 +1,4 @@
-<a href="http://webchat.segured.org"><img src="https://zulipchat.com/static/images/integrations/logos/irc.svg" width="50%" height="auto" title="irc.segured.org" alt="irc.segured.org"></a>
+<a href="http://webchat.segured.org"><img src="https://zulipchat.com/static/images/integrations/logos/irc.svg" align="center" width="25%" height="auto" title="irc.segured.org" alt="irc.segured.org"></a>
 
 <!-- [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com) -->
 
