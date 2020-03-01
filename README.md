@@ -16,7 +16,9 @@ sudo apt install curl wget apt-transport-https dirmngr git build-essential gcc m
 mkdir core; cd core
 --
 # Clonamos los repositorios de UnrealIRCd, Anope IRC Services e IRCd(Configuraciones se los servicios y servidor)
-git clone https://github.com/unrealircd/unrealircd.git; git clone https://github.com/anope/anope.git; git clone https://github.com/alxsenen/ircd.git
+git clone [GitHub Pages](https://github.com/unrealircd/unrealircd.git)
+git clone [GitHub Pages](https://github.com/anope/anope.git)
+git clone [GitHub Pages](https://github.com/alxsenen/ircd.git)
 --
 # Instalamos UnrealIRCd
 cd unrealircd
