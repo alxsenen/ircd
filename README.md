@@ -41,8 +41,8 @@ $ git clone https://github.com/alxsenen/ircd.git
 > Extra git configurations
 
 ```shell
-$ git config --global user.email "alxsenen@gmail.com"
-$ git config --global user.name "Alex"
+$ git config --global user.email "user@mail.com"
+$ git config --global user.name "Name"
 ```
 > This line is for store git credential after clone repositorie (Optional)
 
@@ -81,7 +81,7 @@ $ sudo /etc/init.d/mysql start
 
 ```shell
 $ CREATE DATABASE db_ircd;
-$ CREATE USER 'db_ircd'@'localhost' IDENTIFIED BY 'ircd*.2020';
+$ CREATE USER 'db_ircd'@'localhost' IDENTIFIED BY 'db_ircd';
 $ GRANT ALL PRIVILEGES ON * . * TO 'db_ircd'@'localhost';
 $ FLUSH PRIVILEGES;
 ```
