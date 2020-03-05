@@ -1,0 +1,386 @@
+    1  hostnamectl set-hostname lcloud03
+    2  exit
+    3  cd ..
+    4  exit
+    5  exit
+    6  apt install nginx nginx-full
+    7  apt install nginx nginx-full --fix-missing
+    8  apt update
+    9  apt upgrade
+   10  apt install nginx nginx-full --fix-missing
+   11  ls
+   12  cd /var/www/html/
+   13  wget https://kiwiirc.com/downloads/kiwiirc_19.04.24.1_linux_amd64.zip
+   14  unzip e kiwiirc_19.04.24.1_linux_amd64.zip 
+   15  apt install unzip
+   16  unzip e kiwiirc_19.04.24.1_linux_amd64.zip 
+   17  unzip kiwiirc_19.04.24.1_linux_amd64.zip 
+   18  ls
+   19  mv kiwiirc_linux_amd64/ kiwiirc
+   20  ls
+   21  cd kiwiirc/
+   22  ls
+   23  chmod +x kiwiirc 
+   24  cp config.conf.example config.conf
+   25  nano config.conf
+   26  nohup ./kiwiirc >/dev/null 2>&1 &
+   27  ./kiwiirc 
+   28  ls
+   29  nano config.conf
+   30  cd
+   31  cd /opt/
+   32  wget -o /usr/local/sbin/certbot-auto https://dl.eff.org/certbot-auto
+   33  chmod a+x /usr/local/sbin/certbot-auto
+   34  /usr/local/sbin/certbot-auto certonly --webroot --webroot-path=/etc/nginx/ssl/ -d webchat.segured.org
+   35  /usr/local/sbin/certbot-auto certonly -d webchat.segured.org
+   36  ls
+   37  ls
+   38  chmod +x certbot-auto 
+   39  ./certbot-auto -d webchat.segured.org
+   40  cd
+   41  cd /etc/nginx/sites-enabled/
+   42  ls
+   43  nano default 
+   44  cd
+   45  ls
+   46  cd /var/www/html/kiwiirc/
+   47  ls
+   48  nano config.conf
+   49  cat /etc/nginx/sites-enabled/default 
+   50  nano config.conf
+   51  ls
+   52  cd www/
+   53  ls
+   54  cd static/
+   55  ls
+   56  nano config.json 
+   57  cp config.json config.json_default
+   58  nano config.json
+   59  cd ..
+   60  ls
+   61  cd ..
+   62  nohup ./kiwiirc >/dev/null 2>&1 &
+   63  nano /etc/nginx/sites-enabled/default 
+   64  /etc/init.d/nginx reload
+   65  nano /etc/nginx/sites-enabled/default 
+   66  nginx -t
+   67  /etc/init.d/nginx restart
+   68  ls
+   69  cd www/
+   70  ls
+   71  nano static/config.json
+   72  nano static/config.json
+   73  cat static/config.json_default 
+   74  nano static/config.json
+   75  nano static/config.json
+   76  ls
+   77  cd ..
+   78  cd ..
+   79  ps -ef |grep kiwi
+   80  ls
+   81  cd kiwiirc/
+   82  ./kiwiirc stop
+   83  ls
+   84  ps -ef |grep kiwi
+   85  kill 20298
+   86  cd ..
+   87  ls
+   88  rm -r kiwiirc_19.04.24.1_linux_amd64.zip 
+   89  ls
+   90  apt install git
+   91  git clone https://github.com/alxsenen/webchat.git
+   92  ls
+   93  cd kiwiirc/
+   94  mv * ../webchat/
+   95  ls
+   96  cd ..
+   97  ls
+   98  rm kiwiirc/
+   99  rm -rf kiwiirc/
+  100  cd webchat/
+  101  ls
+  102  nano startup.sh
+  103  nano startup.sh 
+  104  cat kiwiirc 
+  105  ls
+  106  clear
+  107  chmod +x startup.sh 
+  108  git add .
+  109  git commit -m "Adding Webchat"
+  110  git config --global user.email "alxsenen@gmail.com"
+  111  git config --global user.name "Alex"
+  112  git commit -m "Adding Webchat"
+  113  git push origin master
+  114  ./startup.sh 
+  115  ifconfig
+  116  apt install network-tools
+  117  apt install net-tools
+  118  ifconfig
+  119  nano /etc/ssh/sshd_config 
+  120  /etc/init.d/ssh restart
+  121  ls
+  122  nano /etc/ssh/sshd_config 
+  123  cd /home/
+  124  ls
+  125  cd
+  126  cat ~/.ssh/authorized_keys 
+  127  ls
+  128  cd /etc/nginx/sites-enabled/
+  129  ls
+  130  nano default 
+  131  cat default 
+  132  ls
+  133  ssh lcloud01.cropersviral.com
+  134  ssh lcloud01.cropersviral.com -p 443
+  135  ssh lcloud01.cropersviral.com -p 443
+  136  ls
+  137  ls
+  138  cat ~/.ssh/authorized_keys 
+  139  exit
+  140  ls
+  141  cd /var/www/html/webchat/
+  142  ls
+  143  nano config.conf
+  144  cd www/
+  145  ls
+  146  cd static/
+  147  ls
+  148  nano config.json
+  149  ls
+  150  cd css/
+  151  ls
+  152  cd ..
+  153  ls
+  154  cd themes/
+  155  ls
+  156  cd default/
+  157  ls
+  158  nano theme.css 
+  159  cd ..
+  160  ls
+  161  cd common/
+  162  ls
+  163  nano custom.css
+  164  ls
+  165  cd ..
+  166  cd default/
+  167  ls
+  168  nano theme.css 
+  169  killall kiwi
+  170  ps -ef |grep kiwi
+  171  kill 630
+  172  crontab -l
+  173  ls
+  174  cd ..
+  175  ls
+  176  cd ..
+  177  ls
+  178  cd ..
+  179  ls
+  180  cd ..
+  181  ls
+  182  ./startup.sh 
+  183  ls
+  184  ls
+  185  cd www/
+  186  ls
+  187  nano index.html 
+  188  ls
+  189  ls
+  190  cd static/
+  191  ls
+  192  cd css/
+  193  ls
+  194  cat app.26c42b0ab3448fbc62fca392e8f8c30b.css
+  195  ls
+  196  cd ..
+  197  ls
+  198  cd tj
+  199  cd themes/
+  200  ls
+  201  cd default/
+  202  ls
+  203  nano theme.css 
+  204  ls
+  205  cd ..
+  206  cd common/
+  207  ls -lart
+  208  cat custom.css 
+  209  ls
+  210  ps -ef |grep kiwi
+  211  kill 4521
+  212  nano /etc/nginx/sites-enabled/default 
+  213  cd ..
+  214  ls
+  215  cd ..
+  216  ls
+  217  cd ..
+  218  ls
+  219  nano /etc/nginx/sites-enabled/default 
+  220  /etc/init.d/nginx restart
+  221  nano /etc/nginx/sites-enabled/default 
+  222  /etc/init.d/nginx restart
+  223  ls
+  224  cd ..
+  225  ls
+  226  ./startup.sh 
+  227  cd
+  228  cd op
+  229  cd /opt/
+  230  apt install ./thelounge.deb
+  231  apt install thelounge
+  232  cd
+  233  ls
+  234  cd /opt/
+  235  wget https://github.com/thelounge/thelounge/releases/download/v4.0.0/thelounge_4.0.0-1_all.deb
+  236  ls
+  237  node -v
+  238  dpkg -i thelounge_4.0.0-1_all.deb 
+  239  apt install nodejs
+  240  apt --fix-broken install
+  241  dpkg -i thelounge_4.0.0-1_all.deb 
+  242  ls
+  243  thelounge -h
+  244  ps -ef |grep kiwi
+  245  kill 4997
+  246  thelounge start
+  247  sudo -u irc thelounge start
+  248  netstat -lptun
+  249  cd /etc/thelounge/
+  250  ls
+  251  nano config.js 
+  252  thelounge restart
+  253  reboot
+  254  cat /etc/nginx/sites-enabled/default .
+  255  netstat -lptun
+  256  /etc/init.d/nginx status
+  257  cat /etc/nginx/sites-enabled/default 
+  258  nano /etc/nginx/sites-enabled/default 
+  259  history kiwi
+  260  history |grep kiwi
+  261  cd /var/www/html/webchat/
+  262  ls
+  263  ls
+  264  cat startup.sh 
+  265  ./startup.sh 
+  266  passwd
+  267  nano /etc/ssh/sshd_config 
+  268  /etc/init.d/ssh restart
+  269  nano /etc/ssh/sshd_config 
+  270  /etc/init.d/ssh restart
+  271  netstat -lptun
+  272  nano /etc/nginx/sites-enabled/default 
+  273  cd
+  274  cd /var/www/html/webchat/
+  275  ls
+  276  cat config.conf
+  277  cd /etc/
+  278  cd thelounge/`
+  279  cd thelounge/
+  280  ls
+  281  nano config.js 
+  282  ll etc/letsencrypt/live/webchat.segured.org/
+  283  ls /etc/letsencrypt/live/webchat.segured.org/
+  284  ls
+  285  nano config.js 
+  286  node
+  287  reboot
+  288  netstat -lptun
+  289  ls
+  290  cd /etc/nginx/sites-enabled/
+  291  ls
+  292  rm default 
+  293  reboot
+  294  ls
+  295  netstat -lptun
+  296  thelounge start
+  297  thelounge -h
+  298  thelounge start
+  299  ls
+  300  thelounge start --help
+  301  chown -R ircd:ircd /etc/thelounge/
+  302  cd /etc/
+  303  ls -lart
+  304  su ircd
+  305  cp -r /etc/letsencrypt/archive/webchat.segured.org/ /etc/thelounge/
+  306  cd thelounge/
+  307  ls
+  308  ls -lart
+  309  mv webchat.segured.org/ ssl
+  310  ls
+  311  chown -R ircd:ircd ssl/
+  312  ls
+  313  cd ssl/
+  314  ls
+  315  mv cert1.pem cert.pem 
+  316  mv chain1.pem chain.pem 
+  317  mv fullchain1.pem fullchain.pem 
+  318  ls
+  319  mv privkey1.pem privkey.pem 
+  320  ls
+  321  cd ..
+  322  nano config.js 
+  323  su ircd
+  324  nano /etc/sudoers
+  325  su ircd
+  326  ls
+  327  thelounge start
+  328  nano config.js 
+  329  thelounge start
+  330  nano config.js 
+  331  thelounge start
+  332  cat /etc/nginx/sites-enabled/default 
+  333  nano config.js 
+  334  thelounge start
+  335  su ircd
+  336  cd /etc/nginx/sites-enabled/
+  337  ls
+  338  ln -s ../sites-available/default 
+  339  nano default 
+  340  /etc/init.d/nginx reload
+  341  netstat -lptun
+  342  ls
+  343  cd /etc/thelounge/
+  344  ls
+  345  cd users/
+  346  ls
+  347  cd ..
+  348  ls
+  349  nano config.js 
+  350  adduser ircd
+  351  ls
+  352  ps -ef |grep thelounge
+  353  ifconfig
+  354  ls
+  355  ls
+  356  history
+  357  cd
+  358  ls
+  359  ls
+  360  cd /etc/nginx/sites-enabled/
+  361  ls
+  362  cat default 
+  363  ls
+  364  cd /opt/
+  365  ls
+  366  git clone https://github.com/alxsenen/ircd.git
+  367  ls
+  368  cd ircd/
+  369  ls
+  370  mkdir webchat
+  371  cd webchat/
+  372  mkdir nginx
+  373  cp /etc/nginx/sites-available/default /opt/ircd/webchat/nginx/
+  374  cd 
+  375  cd /opt/
+  376  ls
+  377  cp -r /etc/letsencrypt/archive/webchat.segured.org/ /opt/ircd/webchat/letsencrypt
+  378  cd ircd/
+  379  git add .
+  380  gir commit -m "Adding webchat"
+  381  git commit -m "Adding webchat"
+  382  git push
+  383  poweroff
+  384  cd /opt/ircd/
+  385  cd webchat/
+  386  history > history.txt
