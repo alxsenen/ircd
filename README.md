@@ -131,6 +131,37 @@ $ cd ~/unrealircd; ./unrealircd start
 $ cd ~/services; ./services
 ```
 
+## Webchat
+
+> Setting up nginx webserver
+
+```shell
+$ echo "export LC_CTYPE=en_US.UTF-8" >> ~/.bashrc; source ~/.bashrc 
+$ apt update; apt upgrade -y
+$ apt install nginx nginx-full
+$ nano /etc/nginx/sites-available/default # Cambiamos la variable server_name _; por server_name webchat.segured.org;
+$ nginx -t # Comprobamos la configuración del nginx
+$ services nginx restart
+```
+
+> Setting up nginx webserver by https
+
+```shell
+$ apt install python-certbot-nginx
+$ certbot --nginx -d webchat.segured.org
+$ /etc/init.d/nginx reload
+$ apt install nodejs
+$ cd /opt; wget https://github.com/thelounge/thelounge/releases/download/v4.0.0/thelounge_4.0.0-1_all.deb
+$ apt install ./thelounge_4.0.0-1_all.deb
+$
+```
+
+> Starting Anope IRC Services
+
+```shell
+$ cd ~/services; ./services
+```
+
 ## License
 
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
