@@ -2,7 +2,7 @@
 
 <!-- [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com) -->
 
-# irc.segured.org
+# irc.segured.org & https://webchat.segured.org
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@
 - [Clone](#clone)
 - [Setup](#setup)
 - [Start](#start)
+- [Webchat](#webchat)
 - [License](#license)
 
 ---
