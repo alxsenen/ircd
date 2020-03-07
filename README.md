@@ -150,10 +150,18 @@ $ services nginx restart
 $ apt install python-certbot-nginx
 $ certbot --nginx -d webchat.segured.org
 $ /etc/init.d/nginx reload
+```
+> Setting up webchat by TheLounge
+
+```shell
 $ apt install nodejs
 $ cd /opt; wget https://github.com/thelounge/thelounge/releases/download/v4.0.0/thelounge_4.0.0-1_all.deb
 $ apt install ./thelounge_4.0.0-1_all.deb
-$
+$ adduser ircd
+$ su ircd
+$ cp -r /etc/letsencrypt/archive/webchat.segured.org/ /etc/thelounge/
+$ mv webchat.segured.org/ ssl
+$ 
 ```
 
 > Starting Anope IRC Services
