@@ -57,16 +57,18 @@
 								<li><a href="{SUBCATEGORY_URL}{SUBCATEGORY_GET}">{SUBCATEGORY_NAME}</a></li>
 								{END FOR}
 							</ul>
+							{FOR CATEGORY_URL,CATEGORY_NAME IN CATEGORY_URLS,CATEGORY_NAMES}
 							{IF EQ CATEGORY_NAME OperServ}
 							{IF EXISTS IS_OPER}
 							<ul class="nav nav-list" style="padding: 10px;">
-								{FOR SUBCATEGORY_URL,SUBCATEGORY_GET,SUBCATEGORY_NAME IN SUBCATEGORY_URLS,SUBCATEGORY_GETS,SUBCATEGORY_NAMES}
+								
 								<li><a href="{SUBCATEGORY_URL}{SUBCATEGORY_GET}">Oper</a></li>
-								{END FOR}
+
 							</ul>
 							{ELSE}
 							<p>esto</p>
 							{END IF}
+							{END FOR}
 						</div>
 					</div>
 				</div>
