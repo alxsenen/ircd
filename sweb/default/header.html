@@ -56,22 +56,6 @@
 								{FOR SUBCATEGORY_URL,SUBCATEGORY_GET,SUBCATEGORY_NAME IN SUBCATEGORY_URLS,SUBCATEGORY_GETS,SUBCATEGORY_NAMES}
 								<li><a href="{SUBCATEGORY_URL}{SUBCATEGORY_GET}">{SUBCATEGORY_NAME}</a></li>
 								{END FOR}
-								{FOR CATEGORY_URL,CATEGORY_NAME IN CATEGORY_URLS,CATEGORY_NAMES}
-					<li
-						{IF EQ CATEGORY NickServ}{IF EQ CATEGORY_NAME NickServ}class="active"{END IF}{END IF}
-						{IF EQ CATEGORY OperServ}{IF EQ CATEGORY_NAME OperServ}class="active"{END IF}{END IF}>
-						{IF EQ CATEGORY_NAME OperServ}
-								<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
-						{ELSE}
-							<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
-						{END IF}
-						{IF EQ CATEGORY_NAME NickServ}
-								<a href="{CATEGORY_URL}">INformacion</a>
-						{ELSE}
-							<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
-						{END IF}
-					</li>
-					{END FOR}
 							</ul>
 						</div>
 					</div>
