@@ -61,23 +61,12 @@
 						{IF EQ CATEGORY NickServ}{IF EQ CATEGORY_NAME NickServ}class="active"{END IF}{END IF}
 						{IF EQ CATEGORY OperServ}{IF EQ CATEGORY_NAME OperServ}class="active"{END IF}{END IF}>
 						{IF EQ CATEGORY_NAME OperServ}
-							{IF EXISTS IS_OPER}
 								<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
-							{END IF}
 						{ELSE}
 							<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
 						{END IF}
 						{IF EQ CATEGORY_NAME NickServ}
-							{IF EXISTS IS_OPER}
 								<a href="{CATEGORY_URL}">INformacion</a>
-							{END IF}
-						{ELSE}
-							<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
-						{END IF}
-						{IF EQ CATEGORY_NAME ChanServ}
-							{IF EXISTS IS_OPER}
-								<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
-							{END IF}
 						{ELSE}
 							<a href="{CATEGORY_URL}">{CATEGORY_NAME}</a>
 						{END IF}
