@@ -1,5 +1,5 @@
 {INCLUDE header.html}
-		<div class="panel-heading">Your account information</div>
+		<div class="panel-heading">Informaci&oacute;n de su usuario</div>
 		<div class="panel-body">
 			{FOR M IN ERRORS}
 			<div class="alert alert-danger">
@@ -17,22 +17,22 @@
 				<table id="tableInfo" class="table table-hover">
 					<tbody>
 						<tr>
-							<td>Account:</td>
+							<td>Usuario:</td>
 							<td>{DISPLAY}</td>
 						</tr>
 						{IF EXISTS EMAIL}
 						<tr>
-							<td>E-mail:</td>
+							<td>Correo:</td>
 							<td>{EMAIL}</td>
 						</tr>
 						{END IF}
 						<tr>
-							<td>Time registered:</td>
+							<td>Registrado el:</td>
 							<td>{TIME_REGISTERED}</td>
 						</tr>
 						{IF EXISTS VHOST}
 						<tr>
-							<td>Vhost:</td>
+							<td>M&aacute;cara:</td>
 							<td>{VHOST}</td>
 						</tr>
 						{END IF}
@@ -45,11 +45,11 @@
 							<td><input type="checkbox" name="autoop" value="on" {IF EXISTS AUTOOP}checked{END IF}></td>
 						</tr>
 						<tr>
-							<td>Private:</td>
+							<td>Privado:</td>
 							<td><input type="checkbox" name="private" value="on" {IF EXISTS PRIVATE}checked{END IF}></td>
 						</tr>
 						<tr>
-							<td>Secure:</td>
+							<td>Seguro:</td>
 							<td><input type="checkbox" name="secure" value="on" {IF EXISTS SECURE}checked{END IF}></td>
 						</tr>
 						<tr>
@@ -65,7 +65,7 @@
 					</tbody>
 				</table>
 				<div class="text-center">
-					<button type="submit" class="btn btn-lg btn-primary">Save</button>
+					<button type="submit" class="btn btn-lg btn-primary">Guardar</button>
 				</div>
 			</form>
 		</div>
