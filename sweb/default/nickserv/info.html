@@ -22,22 +22,22 @@
 						</tr>
 						{IF EXISTS EMAIL}
 						<tr>
-							<td>Correo:</td>
+							<td>Correo electr&oacute;nico:</td>
 							<td>{EMAIL}</td>
 						</tr>
 						{END IF}
 						<tr>
-							<td>Registrado el:</td>
+							<td>Fecha de Registro:</td>
 							<td>{TIME_REGISTERED}</td>
 						</tr>
 						{IF EXISTS VHOST}
 						<tr>
-							<td>M&aacute;cara:</td>
+							<td>M&aacute;cara virtual:</td>
 							<td>{VHOST}</td>
 						</tr>
 						{END IF}
 						<tr>
-							<td>Greet:</td>
+							<td>Mensaje de acceso:</td>
 							<td><input name="greet" value="{GREET}" class="form-control input-sm"></td>
 						</tr>
 						<tr>
@@ -56,9 +56,9 @@
 							<td>Kill:</td>
 							<td>
 								<select name="kill" class="form-control input-sm">
-									<option value="on" {IF EXISTS KILL_ON}selected{END IF}>On</option>
-									<option value="quick" {IF EXISTS KILL_QUICK}selected{END IF}>Quick</option>
-									<option value="off" {IF EXISTS KILL_OFF}selected{END IF}>Off</option>
+									<option value="on" {IF EXISTS KILL_ON}selected{END IF}>Encendido</option>
+									<option value="quick" {IF EXISTS KILL_QUICK}selected{END IF}>R&aacute;pido</option>
+									<option value="off" {IF EXISTS KILL_OFF}selected{END IF}>Apagado</option>
 								</select>
 							</td>
 						</tr>
