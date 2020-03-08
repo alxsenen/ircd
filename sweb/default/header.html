@@ -60,9 +60,10 @@
 						</div>
 						<div class="well" style="padding: 0;">
 							<ul class="nav nav-list" style="padding: 10px;">
-								{FOR CATEGORY NickServ, SUBCATEGORY_URL,SUBCATEGORY_GET,SUBCATEGORY_NAME IN SUBCATEGORY_URLS,SUBCATEGORY_GETS}
-								<li><a href="{SUBCATEGORY_URL}{SUBCATEGORY_GET}">NICK1</a></li>
-								{END FOR}
+								{IF EXISTS CATEGORY NickServ}
+								{FOR SUBCATEGORY_URL,SUBCATEGORY_GET,SUBCATEGORY_NAME IN SUBCATEGORY_URLS,SUBCATEGORY_GETS}
+								<li><a href="{SUBCATEGORY_URL}{SUBCATEGORY_GET}">Informacion</a></li>
+								{END FOR}{END IF}
 							</ul>
 						</div>
 					</div>
