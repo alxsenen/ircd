@@ -9,6 +9,11 @@ body {
 	background-image: url('/static/cubes.png');
 }
 
+.logo {
+    width: auto;
+    margin: -50px 0;
+}
+
 /* RANDOM STUFF */
 #frontPages {
 	padding-top: 20px;
