@@ -1,0 +1,82 @@
+--- Loading eggdrop v1.9.0+msgtags (Tue Apr 28 2020)
+WARNING: You are using the DEPRECATED variable 'my-ip' in your config file.
+
+    To prevent future incompatibility, please use the vhost4/listen-addr variables instead.
+
+    More information on this subject can be found in the eggdrop/doc/IPV6 file, or
+
+    in the comments above those settings in the example eggdrop.conf that is included with Eggdrop.
+
+Listening for telnet connections on 0.0.0.0:3333 (all).
+Module loaded: dns             
+Module loaded: channels        
+WARNING: Using an integer for net-type is deprecated and will be
+         removed in a future release. Please reference an updated
+         configuration file for the new allowed string values
+Module loaded: server          
+Module loaded: ctcp            
+Module loaded: irc             
+Module loaded: notes            (with lang support)
+Module loaded: console          (with lang support)
+Module loaded: blowfish        
+Loading 10BogusTrivia v2.06.4.7 (14Aug14) by SpiKe^^...
+10BogusTrivia Loaded.
+Creating channel file
+Writing channel file...
+=== BOT: 0 channels, 0 users.
+
+Eggdrop v1.9.0+msgtags (C) 1997 Robey Pointer (C) 2010-2020 Eggheads
+
+
+STARTING BOT IN USERFILE CREATION MODE.
+Telnet to the bot and enter 'NEW' as your nickname.
+OR go to IRC and type:  /msg TuX hello
+This will make the bot recognize you as the master.
+
+
+Eggdrop v1.9.0+msgtags (C) 1997 Robey Pointer (C) 2010-2020 Eggheads
+
+
+STARTING BOT IN USERFILE CREATION MODE.
+Telnet to the bot and enter 'NEW' as your nickname.
+OR go to IRC and type:  /msg TuX hello
+This will make the bot recognize you as the master.
+
+Launched into the background  (pid: 28783)
+
+--- Loading eggdrop v1.9.0+msgtags (Tue Apr 28 2020)
+WARNING: You are using the DEPRECATED variable 'my-ip' in your config file.
+
+    To prevent future incompatibility, please use the vhost4/listen-addr variables instead.
+
+    More information on this subject can be found in the eggdrop/doc/IPV6 file, or
+
+    in the comments above those settings in the example eggdrop.conf that is included with Eggdrop.
+
+Listening for telnet connections on 0.0.0.0:3334 (all).
+Module loaded: dns             
+Module loaded: channels        
+WARNING: Using an integer for net-type is deprecated and will be
+         removed in a future release. Please reference an updated
+         configuration file for the new allowed string values
+Module loaded: server          
+Module loaded: ctcp            
+Module loaded: irc             
+Module loaded: notes            (with lang support)
+Module loaded: console          (with lang support)
+Module loaded: blowfish        
+Loading 10BogusTrivia v2.06.4.7 (14Aug14) by SpiKe^^...
+10BogusTrivia Loaded.
+Writing channel file...
+=== BOT: 0 channels, 0 users.
+
+Eggdrop v1.9.0+msgtags (C) 1997 Robey Pointer (C) 2010-2020 Eggheads
+
+
+STARTING BOT IN USERFILE CREATION MODE.
+Telnet to the bot and enter 'NEW' as your nickname.
+OR go to IRC and type:  /msg TuX hello
+This will make the bot recognize you as the master.
+
+I detect BOT already running from this directory.
+If this is incorrect, erase the 'pid.Bot'
