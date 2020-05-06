@@ -21,8 +21,9 @@
 $ hostnamectl set-hostname irc
 $ adduser ircd
 $ apt update; apt upgrade -y
-$ apt install curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev
-$ echo "ircd	ALL=(ALL:ALL) ALL" >> /etc/sudoers
+$ apt install git curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev
+$ dpkg-reconfigure locales #Seteamos es_ES.UTF-8 y presionamos [ENTER]
+$ echo "ircd    ALL=(ALL:ALL) ALL" >> /etc/sudoers
 $ su - ircd
 $ echo "export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc 
 $ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
@@ -37,6 +38,7 @@ $ mkdir core; cd core
 $ git clone https://github.com/unrealircd/unrealircd.git
 $ git clone https://github.com/anope/anope.git
 $ git clone https://github.com/alxsenen/ircd.git
+$ git clone https://github.com/eggheads/eggdrop.git
 ```
 
 > Extra git configurations
