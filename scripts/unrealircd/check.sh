@@ -1,7 +1,7 @@
 PID=$(pidof 'unrealircd')
 if [[ -z "$PID" ]]
 then
-    cd ~/unrealircd/ && ./unrealircd start
+    ~/unrealircd/unrealircd start
 else
     echo "UnrealIRCd($PID) is running"
 fi
