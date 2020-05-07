@@ -21,11 +21,10 @@
 $ hostnamectl set-hostname irc
 $ adduser ircd
 $ apt update; apt upgrade -y
-$ apt install git curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev
+$ apt install git curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev tcl-dev
 $ dpkg-reconfigure locales #Seteamos es_ES.UTF-8 y presionamos [ENTER]
-$ echo "ircd    ALL=(ALL:ALL) ALL" >> /etc/sudoers
 $ su - ircd
-$ echo "export LC_CTYPE=es_ES.UTF-8" >> ~/.bashrc 
+$ echo "export LANGUAGE=es_ES.UTF-8" >> ~/.bashrc 
 $ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
 ```
 
@@ -37,7 +36,7 @@ $ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
 $ mkdir core; cd core
 $ git clone https://github.com/unrealircd/unrealircd.git
 $ git clone https://github.com/anope/anope.git
-$ git clone https://github.com/alxsenen/ircd.git
+$ git clone https://github.com/alxsenen/ircd.git #Este es solo para la red SeguRED
 $ git clone https://github.com/eggheads/eggdrop.git
 ```
 
@@ -55,15 +54,17 @@ $ git config credential.helper store
 
 ### MySQL
 
-> Stopping MySQL Server
+> INstalling MySQL/MariaDB
 
 ```shel
-/etc/init.d/mysql stop
+$ apt install mysql-server
+
 ```
+
 > Setting up MySQL root password
 
 ```shel
-/etc/init.d/mysql stop
+$ /etc/init.d/mysql stop
 
 $ mysqld_safe --skip-grant-tables &
 $ mysql -uroot
@@ -84,8 +85,8 @@ $ sudo /etc/init.d/mysql start
 
 ```shell
 $ CREATE DATABASE db_ircd;
-$ CREATE USER 'db_ircd'@'localhost' IDENTIFIED BY 'db_ircd';
-$ GRANT ALL PRIVILEGES ON * . * TO 'db_ircd'@'localhost';
+$ CREATE USER 'db_ircd'@'%' IDENTIFIED BY 'db_ircd';
+$ GRANT ALL PRIVILEGES ON * . * TO 'db_ircd'@'%';
 $ FLUSH PRIVILEGES;
 ```
 
