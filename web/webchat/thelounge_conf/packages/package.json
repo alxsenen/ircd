@@ -1,0 +1,5 @@
+{
+	"private": true,
+	"description": "Packages for The Lounge. All packages in node_modules directory will be automatically loaded.",
+	"dependencies": {}
+}

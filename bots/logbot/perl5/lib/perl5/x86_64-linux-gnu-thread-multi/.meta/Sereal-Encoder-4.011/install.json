@@ -1,0 +1,1 @@
+{"dist":"Sereal-Encoder-4.011","target":"Sereal::Encoder","pathname":"Y/YV/YVES/Sereal-Encoder-4.011.tar.gz","version":4.011,"provides":{"Sereal::Encoder::Constants":{"version":4.011,"file":"lib/Sereal/Encoder/Constants.pm"},"Sereal::Encoder":{"file":"lib/Sereal/Encoder.pm","version":4.011}},"name":"Sereal::Encoder"}
