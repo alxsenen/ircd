@@ -1,1 +1,0 @@
-{"name":"Mojolicious::Plugin::AccessLog","pathname":"G/GR/GRAF/Mojolicious-Plugin-AccessLog-0.010.tar.gz","provides":{"Mojolicious::Plugin::AccessLog":{"version":"0.010","file":"lib/Mojolicious/Plugin/AccessLog.pm"}},"version":"0.010","dist":"Mojolicious-Plugin-AccessLog-0.010","target":"Mojolicious::Plugin::AccessLog"}
