@@ -1,10 +1,9 @@
-#4v: eggdrop v1.9.0+msgtags -- BOT -- written Wed May  6 09:56:34 2020
+#4v: eggdrop v1.9.0+msgtags -- BOT -- written Sun May 10 21:00:00 2020
 alastor    - jlmnoptx                
+! #lobby               0 -          
 --HOSTS *!*moody@*.segured.org
 --HOSTS -telnet!*@*
---LASTON 1588772232 #lobby
---XTRA created 1588293560
---PASS +SSHVe.ex71.1
+--XTRA created 1589158725
 ::#lobby bans
 &&#lobby exempts
 $$#lobby invites
