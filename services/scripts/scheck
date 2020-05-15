@@ -1,7 +1,7 @@
 PID=$(pidof 'services')
 if [[ -z "$PID" ]]
 then
-    ~/services/bin/services
+   cd  ~/services/bin/; ./services
 else
     echo "IRC Services($PID) is running"
 fi
