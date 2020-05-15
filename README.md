@@ -21,11 +21,9 @@
 $ hostnamectl set-hostname irc
 $ adduser ircd
 $ apt update; apt upgrade -y
-$ apt install git curl wget apt-transport-https dirmngr git build-essential gcc make g++ libssl-dev gettext-lint cmake libmysql++-dev tcl-dev
+$ apt install git curl wget apt-transport-https dirmngr git build-essential gcc make g++ gettext libssl-dev gettext-lint cmake libmysql++-dev tcl-dev
 $ dpkg-reconfigure locales #Seteamos es_ES.UTF-8 y presionamos [ENTER]
 $ su - ircd
-$ echo "export LANGUAGE=es_ES.UTF-8" >> ~/.bashrc 
-$ echo "export LC_ALL=es_ES.UTF-8" >> ~/.bashrc
 ```
 
 ### Clone
