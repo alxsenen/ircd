@@ -1,0 +1,48 @@
+---
+blocked:
+  - '#trivia'
+  - baduser
+bots:
+  - pink
+  - p|nk
+channels:
+  '#ayuda':
+    invite: '[2020-04-30 22:26:03] <[CyberPolice]!BiGBoSS@Security.Proyect.Segured.Org>'
+  '#cuarentenitis':
+    invite: '[2020-04-30 22:48:31] <ChanServ!services@segured.org>'
+  '#dev_team':
+    invite: '[2020-05-04 01:44:46] <[S]Leia!Leia@bots.segured.org>'
+    kick: '[2020-04-30 22:14:28] <ChanServ> Requested (LukeSkywalker)'
+  '#dice':
+    disabled: '1'
+    invite: '[2020-05-01 03:16:38] <ThE_DemEntoR!Azkaban@Prisoner.BoT.GuarD>'
+    kick: '[2020-05-02 14:53:43] <alastor> chau'
+  '#linux':
+    invite: '[2020-04-30 22:22:04] <alastor!moody@netadmin.segured.org>'
+  '#lobby': {}
+  '#opers':
+    disabled: 1
+    hidden: '1'
+    invite: '[2020-05-07 00:50:44] <[S]Terminator!Terminar@bots.segured.org>'
+    kick: '[2020-05-21 19:37:49] <ChanServ> You are not permitted to be on this channel.'
+  '#services':
+    hidden: '1'
+    invite: '[2020-05-09 19:38:46] <[S]RooT!Root@bots.segured.org>'
+help: 'I do not like PMs!!!'
+irc:
+  host: ssl:irc.segured.org:6697
+  nick: P|nK
+  real_name: P|nK
+name: SeguRED
+path: '~/store/segured'
+timing:
+  channel_reload_interval: '3600'
+  initial_ping_delay: '180'
+  invite_cooldown: '180'
+  max_reconnect_interval: '180'
+  ping_interval: '60'
+  ping_timeout: '30'
+  ping_timeout_attempts: '5'
+  topic_reload_interval: '86400'
+title: SeguRED
+url: https://logs.segured.org/

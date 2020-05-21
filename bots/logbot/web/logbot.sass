@@ -1,0 +1,1057 @@
+@import variables.sass
+
+// global
+
+::selection
+  background-color: $selection-bg-colour
+  color: $selection-colour
+
+::-moz-selection
+  background-color: $selection-bg-colour
+  color: $selection-colour
+
+body
+  background-color: $white-colour
+  color: $black-colour
+  font-family: "Hind", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif
+  font-size: medium
+  margin: 0
+  padding: 0 10px 0 0
+
+a
+  color: $link-colour
+  text-decoration: none
+
+  &:hover
+    text-decoration: underline
+  &:focus
+    outline: none
+  &:visited
+    color: $link-visited-colour
+
+.notification
+  background-color: $light-colour
+  border-radius: 3px
+  color: $black-colour
+  margin: 4px 18px 4px 4px
+  padding: .25rem 1.5rem .25rem .5rem
+
+  &.is-bordered
+    border: 1px solid $light-colour
+
+  &.is-warning
+    background-color: $warning-colour
+    color: $black-colour
+
+.button
+  border-radius: 4px
+  cursor: pointer
+  display: inline-block
+  height: 28px
+  margin: 1px
+  text-align: center
+  width: 32px
+
+  svg
+    path
+      fill: $black-colour
+
+  &:hover
+    background-color: $light-colour
+    color: $black-colour
+    text-decoration: none
+
+    svg
+      path
+        fill: $black-colour
+
+  &[disabled]
+    cursor: not-allowed
+    opacity: 0.25
+
+    &:hover
+      background-color: $white-colour
+      color: $black-colour
+
+      svg
+        path
+          fill: $black-colour
+
+  svg
+    height: 18px
+    position: relative
+    top: calc(50% - 9px)
+    width: 18px
+
+.hidden
+  visibility: hidden
+
+.default-display-none
+  display: none
+
+#content
+  clear: both
+  padding: 0 5px 1.5em 5px
+
+// index
+
+#index
+  max-width: 42rem
+  padding-left: 8px
+
+  svg
+    path
+      fill: $black-colour
+
+  #logo-large
+    color: $dark-colour
+    font-size: xx-large
+    font-weight: bold
+
+    svg
+      height: 128px
+      vertical-align: middle
+      width: 128px
+
+      path
+        fill: $dark-colour
+
+  ul.link-list
+    list-style: none
+    margin: 0
+    padding: 0
+
+    svg
+      height: 1em
+      margin-right: 2px
+      width: 1em
+
+    li
+      display: inline-block
+      margin-right: 1em
+
+  #intro
+    margin-bottom: 2em
+
+  h3
+    color: $dark-colour
+    margin-bottom: 0.5em
+    margin-top: 2em
+
+  p
+    margin-bottom: 0.5em
+    margin-top: 0
+
+// topic
+
+#topic
+  background-color: $light-colour
+  clear: both
+  color: $black-colour
+  height: $topic-height
+  line-height: $topic-height
+  overflow: hidden
+  padding: 0 4px
+  text-overflow: ellipsis
+  white-space: nowrap
+
+  &:hover
+    height: auto
+    min-height: 30px
+    white-space: normal
+
+body
+  &.topic
+
+    #main
+      top: $nav-height + $topic-height
+
+    #channel-topic
+      border-bottom: 1px solid $dark-colour
+
+
+// logs
+
+#logs, #search-logs
+
+  ul
+    list-style: none
+    margin: 0
+    padding: 0
+
+    li
+      line-height: 120%
+      padding: 3px 1rem 3px 4px
+
+      &:hover
+        background-color: $light-colour
+        color: $black-colour
+
+      &.hl
+        background-color: $hilite-colour
+        color: $black-colour
+
+    .time
+      color: $medium-colour
+      display: inline
+      position: absolute
+
+      a
+        color: $medium-colour
+
+    .nick, .notice
+      color: $nick-colour
+      display: inline
+      font-weight: 500
+      overflow: hidden
+      position: absolute
+      text-overflow: ellipsis
+      white-space: nowrap
+      width: 7em
+      z-index: 1
+
+      &:hover
+        background-color: $light-colour
+        overflow: visible
+        padding-right: 5px
+        width: auto !important
+
+    .action
+      overflow-wrap: break-word
+      word-wrap: break-word
+
+      .a
+        color: $medium-colour
+
+      .nc
+        color: $nick-colour
+        font-weight: 500
+
+    .text
+      overflow-wrap: break-word
+      word-wrap: break-word
+
+    .notice, .notice-text
+      font-style: italic
+
+.time-nav
+  color: $medium-colour
+  margin-top: 1rem
+  padding-left: 4px
+
+  a
+    color: $medium-colour
+
+  .time-nav-item
+    display: inline-block
+
+    &.static
+      color: $dark-colour
+
+    &:not(:last-child)
+      border-right: 1px dotted $light-colour
+      margin-right: 8px
+      padding-right: 8px
+
+#debug
+  max-width: calc(100% - #{$sidebar-width-open + 32px})
+  overflow: scroll
+
+// settings
+
+.modal
+  align-items: center
+  bottom: 0
+  display: none
+  justify-content: center
+  left: 0
+  overflow: hidden
+  position: absolute
+  position: fixed
+  right: 0
+  top: 0
+  z-index: 20
+
+  &.is-active
+    display: flex
+
+.modal-background
+  background-color: $overlay-colour
+  bottom: 0
+  left: 0
+  position: absolute
+  right: 0
+  top: 0
+
+.modal-content
+  margin: 0
+  max-height: calc(100vh - 160px)
+  overflow: auto
+  position: relative
+  width: 100%
+
+.modal-close
+  background: none
+  border-radius: 100%
+  border: none
+  color: $white-colour
+  cursor: pointer
+  font-size: large
+  height: 40px
+  position: fixed
+  right: 20px
+  top: 20px
+  width: 40px
+
+  &:hover
+    background-color: $black-colour
+
+body
+  // small text
+  &.font-s
+    font-size: small
+
+    .menu
+      font-size: small
+
+    #logs, #search-logs
+      .time
+        width: $time-width-small
+      .nick, .notice
+        margin-left: calc(#{$time-width-small} + 4px)
+        width: $nick-width-small
+      .action
+        margin-left: calc(#{$time-width-small} + 4px)
+      .text
+        margin-left: calc(#{$time-width-small} + 4px + #{$nick-width-small} + 4px)
+
+  // normal sized text
+  &:not(.font-s)
+    #logs, #search-logs
+      .time
+        width: $time-width-large
+      .nick, .notice
+        margin-left: calc(#{$time-width-large} + 4px)
+        width: $nick-width-large
+      .action
+        margin-left: calc(#{$time-width-large} + 4px)
+      .text
+        margin-left: calc(#{$time-width-large} + 4px + #{$nick-width-large} + 4px)
+
+  // hide irc bots
+  &.hide-b
+    #logs
+      li
+        &.bot
+          display: none
+
+    #no-filtered-events
+      display: block
+
+  &:not(.hide-b)
+    #no-filtered-events
+      display: none
+
+  // desaturate irc bots
+
+  &:not(.norm-b)
+    #logs, #search-logs
+      li
+        &.bot
+          .nick, .notice, .anick, .text, .action
+            color: $medium-colour
+
+            a
+              color: $link-light-colour
+
+  // wider nick column
+  &.nick-w
+    &.font-s
+      #logs, #search-logs
+        .nick
+          width: calc(#{$nick-width-small} + 2em)
+        .text
+          margin-left: calc(#{$time-width-small} + 4px + #{$nick-width-small} + 2em + 4px)
+    &:not(.font-s)
+      #logs, #search-logs
+        .nick
+          width: calc(#{$nick-width-large} + 2em)
+        .text
+          margin-left: calc(#{$time-width-large} + 4px + #{$nick-width-large} + 2em + 4px)
+
+#settings-container
+  background-color: $white-colour
+  border-radius: 5px
+  font-size: 1rem
+  line-height: 200%
+  padding: 10px
+
+  .setting
+    cursor: default
+
+  .not-implemented
+    color: $medium-colour
+
+  input
+    background-color: $white-colour  // for chrome
+
+    &.hover
+      box-shadow: 0 0 2px $dark-colour
+
+  #settings-close-container
+    text-align: right
+
+    #settings-close
+      background-color: $dark-colour
+      border-radius: 3px
+      color: $white-colour
+      cursor: pointer
+      display: inline
+      line-height: 1.5
+      padding: 5px 12px
+
+      &:hover
+        background-color: $medium-colour
+        text-decoration: none
+
+// sidebar
+
+#sidebar
+  border-right: 1px solid $light-colour
+  min-height: 100vh
+  position: fixed
+  top: 0
+  width: $sidebar-width-open
+
+  .select
+    display: block
+    margin: 2px
+
+    select
+      width: 100%
+
+  #actions
+    height: $nav-height
+    position: fixed
+    width: $sidebar-width-open
+    z-index: 5
+
+    #about
+      float: right
+
+  #menu
+    line-height: 1.25
+
+    a
+      color: $black-colour
+      display: block
+      padding: 0.5em 0.75em
+
+      &:hover
+        background-color: $light-colour
+        color: $black-colour
+        text-decoration: none !important
+
+      &.is-active
+        background-color: $dark-colour
+        color: $white-colour
+
+        &:hover
+          background-color: $dark-colour
+          color: $white-colour
+
+    #archived
+      background-color: $light-colour
+      color: $black-colour
+      font-weight: 500
+      margin-top: 1em
+      padding: .5em .75em
+
+    .archived
+      a
+        background-color: $white-colour
+        color: $medium-colour
+
+        &:hover
+          background-color: $light-colour
+          color: $medium-colour
+
+body
+  &.menu-c
+    .svg-sidebar-collapse
+      display: none
+    .svg-sidebar-open
+      display: inline-block
+
+    #sidebar
+      transition-duration: $transition-time
+      transition-property: width
+      width: $sidebar-width-closed
+
+      #actions
+        transition-duration: $transition-time
+        transition-property: width
+        width: $sidebar-width-closed
+
+        #about
+          float: inherit
+
+    #networks
+      display: none
+
+    #channels
+      display: none
+
+    #nav
+      margin-left: $sidebar-width-closed
+      transition-duration: $transition-time
+      transition-property: margin, width
+      width: calc(100% - #{$sidebar-width-closed})
+
+    #main
+      margin-left: $sidebar-width-closed
+      transition-duration: $transition-time
+      transition-property: margin, width
+      width: calc(100% - #{$sidebar-width-closed + 1px})
+
+  &:not(.menu-c)
+    .svg-sidebar-closed
+      display: inline-block
+    .svg-sidebar-open
+      display: none
+
+    #sidebar
+      transition-duration: $transition-time
+      transition-property: width
+
+      #xxactions
+        transition-duration: $transition-time
+        transition-property: width
+
+    #nav
+      transition-duration: $transition-time
+      transition-property: margin, width
+
+    #main
+      transition-duration: $transition-time
+      transition-property: margin, width
+      width: calc(100% - #{$sidebar-width-open + 1px})
+
+#networks
+  font-size: initial
+  margin-top: $nav-height
+
+  svg
+    height: 18px
+    width: 18px
+
+  #current-network
+    border-bottom-left-radius: 0
+    border-bottom-right-radius: 0
+    border-top-left-radius: 3px
+    border-top-right-radius: 3px
+    border: 1px solid $light-colour
+    color: $black-colour
+    height: 32px
+    margin-bottom: 0
+
+    &:hover
+      border-color: $medium-colour
+
+  #current-network-toggle
+    float: right
+
+    svg
+      transform: translateY(25%)
+
+      path
+        fill: $black-colour
+
+  #other-networks
+    border-bottom-left-radius: 3px
+    border-bottom-right-radius: 3px
+    border: 1px solid $light-colour
+    margin: 0 2px 4px 2px
+
+    border-top: none
+
+    .network
+      margin: 0
+
+      &:hover
+        background-color: $light-colour
+        color: $black-colour
+        text-decoration: none
+
+  &.collapsed
+    #current-network
+      border-bottom-left-radius: 3px
+      border-bottom-right-radius: 3px
+      margin-bottom: 2px
+
+    #other-networks
+      display: none
+
+    .svg-networks-close
+      display: none
+
+  &:not(.collapsed)
+    .svg-networks-open
+      display: none
+
+  .network
+    background-color: $white-colour
+    color: $dark-colour
+    cursor: pointer
+    display: block
+    line-height: 2
+    margin: 2px
+    padding: 0 .75em
+
+
+#channels
+  &.one-network
+    margin-top: $nav-height + 2px
+
+    #channel-menu
+      height: calc(100vh - (#{$nav-height} + 2px))
+
+  &:not(.one-network)
+    #channel-menu
+      height: calc(100vh - (#{$nav-height} + 6px + #{$network-height}))
+
+  ul
+    list-style: none
+    margin: 0
+    overflow-x: hidden
+    padding: 0
+
+// pika
+
+.pika-single
+  background-color: $white-colour
+  border-color: $light-colour
+  color: $black-colour
+
+.pika-label
+  background-color: $white-colour
+  color: $black-colour
+
+.pika-button
+  background-color: $light-colour
+  color: $black-colour
+
+  &:hover
+    background-color: $dark-colour
+    color: $white-colour
+
+.is-selected
+  .pika-button
+    background-color: $dark-colour
+    box-shadow: none
+    color: $white-colour
+
+.pika-table
+  abbr
+    text-decoration: none
+
+// navigation
+
+#nav
+  background-color: $white-colour
+  border-bottom: 1px solid $light-colour
+  border-left: 1px solid $light-colour
+  color: $black-colour
+  height: $nav-height
+  margin-left: $sidebar-width-open
+  position: fixed
+  top: 0
+  width: calc(100% - #{$sidebar-width-open})
+  z-index: 2
+
+  #date-container
+    border-right: 1px solid $light-colour
+    float: left
+    font-size: medium
+    margin-left: 4px
+    margin-right: 4px
+    min-width: calc(#{$time-width-large} + 4px + #{$nick-width-large} + 4px)
+    padding-right: 4px
+
+    #date-next
+      float: right
+
+    #date
+      margin-left: 4px
+      vertical-align: bottom
+
+    #date-icon
+      margin-left: 4px
+
+    #date-picker
+      display: inline-block
+
+  .nav-button
+    float: left
+    margin-right: 8px
+
+  #search-input-container
+    float: left
+    margin-left: 4px
+    margin-top: 2px
+
+    input
+      background-color: inherit
+      border-radius: 2px
+      border: 1px solid $light-colour
+      color: $black-colour
+      padding: 3px
+
+  #search-button-container
+    float: left
+
+  #search-nav
+    font-size: 1rem
+
+  #channel-logs
+    margin-left: 4px
+
+  #network-stats-container
+    margin-left: 4px
+
+  #loc-container
+    display: inline-block
+    position: absolute
+    right: 10px
+
+    background-color: $dark-colour
+    font-size: medium
+    margin: 1px
+    padding: 0 5px
+
+    a
+      color: $white-colour
+
+// main content
+
+#main
+  border-left: 1px solid $light-colour
+  margin-left: $sidebar-width-open
+  min-width: calc(100% - #{$sidebar-width-open + 1px})
+  padding-bottom: 1rem
+  padding-top: 4px
+  position: absolute
+  top: $nav-height
+
+// search
+
+#search-form
+  max-width: 40rem
+
+  .search-label
+    display: inline-block
+    font-weight: 500
+    margin-right: 8px
+    padding: 5px 0
+    text-align: right
+    vertical-align: top
+    width: 5rem
+
+  .search-input
+    display: inline-block
+    padding: 5px 0
+    width: calc(100% - 6rem)
+
+  .search-option
+    display: inline-block
+    white-space: nowrap
+
+  input
+    background-color: inherit
+    border: 1px solid $light-colour
+    color: $black-colour
+    font-size: 100%
+    padding: 5px
+
+  #search-query, #search-channels
+    width: calc(100% - 10px)
+
+  #search-when-from, #search-when-to
+    width: 7em
+
+  #search-who
+    width: 50%
+
+  #search_channels_chosen
+    width: 100% !important
+
+  #search-form-submit
+    background-color: inherit
+    border-radius: 2px
+    border: 1px solid $light-colour
+    cursor: pointer
+
+    &:hover
+      background-color: $light-colour
+      color: $black-colour
+
+.chosen-container-multi
+  .chosen-choices
+    background-color: $white-colour
+    background-image: none
+    border-color: $light-colour
+    color: $black-colour
+
+    li
+      &.search-field
+        input[type="text"]
+          font-family: inherit
+
+      &.search-choice
+        background-color: $light-colour
+        background-image: none
+        border-color: $light-colour
+        border-radius: 0px
+        box-shadow: none
+        color: $dark-colour
+
+.chosen-container
+  .chosen-drop
+    border-color: $light-colour
+    box-shadow: none
+
+  .chosen-results
+    background-color: $white-colour
+    color: $black-colour
+
+#search_channels_chosen .chosen-search-input.default
+  padding: 0
+
+// search results
+
+#search-count
+  margin-top: 1em
+
+#search-logs
+  div
+    &.date
+      background-color: $dark-colour
+      color: $white-colour
+      margin-top: 1rem
+      padding-left: 4px
+
+  ul
+    li.channel
+      a
+        color: $black-colour
+
+      background-color: $light-colour
+      color: $black-colour
+      margin: 2px 0
+
+// hide nav search form on search pages
+body
+  &.search
+    #search-input-container, #search-button-container
+      display: none
+
+// channel list
+
+#channel-list
+  margin: 16px 0 0 0
+  padding-left: 8px
+
+  #filter
+    font-size: 1rem
+
+  #no-results
+    margin-left: 16px
+
+  ul
+    list-style: none
+    padding-left: 16px
+
+    .channel
+      color: $black-colour
+
+    .topic
+      border-left: 1px solid $light-colour
+      color: $medium-colour
+      margin-left: 8px
+      padding-left: 8px
+
+      a
+        color: $link-light-colour
+
+    li
+      margin-bottom: 1rem
+
+      &:not(.match)
+        display: none
+
+// channel stats
+
+#stats
+  padding-left: 8px
+
+  .loading
+    color: $medium-colour
+
+  .loading-hide
+    display: none
+
+  h4
+    margin-top: 8px
+
+    a
+      color: $black-colour
+      font-weight: bold
+
+  #main
+    min-width: 800px
+
+  #events
+    border-spacing: 0
+    margin: 1em 0
+
+    th
+      font-weight: 500
+      padding: 0 1em 0 0
+      text-align: right
+      vertical-align: top
+      white-space: nowrap
+
+    td
+      min-width: 12em
+      padding: 0 3em 0 0
+      white-space: nowrap
+
+  #hours-plot
+    height: 150px
+    margin-top: 2em
+    width: 800px
+
+  #hours-now
+    border-left: 2px solid $dark-colour
+    filter: drop-shadow(0px 0px 1px $white-colour) drop-shadow(0px 0px 1px $white-colour) drop-shadow(0px 0px 1px $white-colour)
+    font-size: small
+    padding-left: 1px
+    position: absolute
+
+  #nicks-plot
+    width: 800px
+
+    tr
+      &.bot
+        .nick
+          color: $medium-colour !important
+
+    .nick
+      color: $nick-colour
+      font-weight: 500
+      padding-right: 8px
+      white-space: nowrap
+
+    .count
+      padding-right: 8px
+      text-align: right
+
+    .bar
+      width: 100%
+
+      div
+        background-color: $light-colour
+        border: 1px solid $medium-colour
+        height: 1em
+
+// config
+
+#config
+  padding-left: 8px
+
+  .section
+    margin-left: 1rem
+
+    .label, .value
+      display: inline-block
+
+    .label
+      font-size: inherit
+      margin-right: 1rem
+      text-align: right
+      width: 5rem
+
+    ul
+      list-style: none
+      padding-left: 1rem
+
+// small screens
+
+@media screen and (min-width: 769px)
+  .modal-content
+    max-height: calc(100vh - 40px)
+    width: 640px
+
+@media (max-width: 479px)
+  body
+    &:not(.font-s), &.font-s
+      #logs, #search-logs
+        .time
+          display: inline-block
+          position: static
+
+        .nick
+          display: inline
+          font-weight: bold
+          margin-left: 0
+          position: static
+
+          &:hover
+            padding-right: 0px
+
+        .action
+          display: inline
+          margin-left: 0
+
+        .text
+          display: inline
+          margin-left: 1em
+
+      #reload-container, #stats-container, #topic-container
+        display: none
+
+      &:not(.menu-c)
+        #search-input-container
+          display: none
+
+  #search-form
+    .search-label
+      font-weight: 700
+      padding: 5px
+      text-align: left
+
+    .search-input
+      display: block
+      padding: 5px
+      width: calc(100% - 10px)
+
+    #search-when-from, #search-when-to
+      width: 6em
+
+@media (max-width: 640px)
+  #not-tiny-screen
+    display: none
+
+  #nav
+    #search-input-container, #loc-container, #raw-container, #end-container
+      display: none
+
+@media (max-width: 800px)
+  #nav
+    #search-input-container, #loc-container
+      display: none
+
+@media (max-width: 1200px)
+  #nav
+    #search-input-container
+      display: none

@@ -1,0 +1,341 @@
+#!/usr/bin/perl
+# mojolicious web handler
+# must set env var LOGBOT_CONFIG to config filename
+#
+# in production runs as a daemon behind a reverse proxy, which handles requests
+# for static assets (web/public/static)
+#
+# use `dev-make` to build static assets
+use local::lib;
+use v5.10;
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use lib "$RealBin/lib";
+
+BEGIN { $ENV{TZ} = 'UTC' }
+
+use DateTime ();
+use IO::Compress::Gzip qw( gzip );
+use LogBot::Config qw( find_config load_all_configs load_config reload_config );
+use LogBot::MemCache ();
+use LogBot::Util qw( file_for file_time time_to_ymd );
+use LogBot::Web::Util qw( channel_from_param channel_topics linkify render_init rewrite_old_urls );
+use Mojo::ByteStream ();
+use Mojo::Log        ();
+use Mojo::Util qw( dumper );
+use Mojolicious::Lite qw( app );
+
+# load networks
+my $networks = [];
+{
+    if (my $config = $ENV{LOGBOT_CONFIG}) {
+
+        # load specific networks (mostly for dev)
+        foreach my $network (split(/,/, $config)) {
+            push @{$networks}, load_config(find_config($network), web => 1);
+        }
+
+    } else {
+
+        # load all networks
+        foreach my $network (values %{ load_all_configs(web => 1) }) {
+            push @{$networks}, $network;
+        }
+    }
+
+    $networks = [sort { $a->{name} cmp $b->{name} } @{$networks}];
+}
+
+# configure mojo
+my $is_production = app->mode() eq 'production';
+app->secrets('!logbot!');
+app->renderer->paths([$RealBin . '/web/templates']);
+app->static->paths([$RealBin . '/web/public']);
+app->config(
+    hypnotoad => {
+        listen => ['http://127.0.0.1:' . ($ENV{LOGBOT_PORT} // 3001)],
+        pid_file => ($ENV{LOGBOT_PID_FILE} // ($RealBin . '/logbot-web.pid')),
+    },
+);
+app->log(Mojo::Log->new(path => $is_production ? '/var/log/logbot/mojo.log' : 'log/mojo.log'));
+plugin AccessLog => {
+    log => ($is_production ? '/var/log/logbot/access.log' : 'log/access.log'),
+    format => '%h %{X-Network}o - %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"',
+};
+plugin 'Status' => {
+    route => app->routes->under(
+        '_status' => sub {
+            my ($c) = @_;
+            my $password = $ENV{'LOGBOT_STATUS_PASSWORD'} // 'status';
+            return 1 if $password eq '';
+            return 1 if ($c->req->url->to_abs->userinfo // '') eq 'logbot:' . $password;
+            $c->res->headers->www_authenticate('Basic');
+            $c->render(text => 'Authentication required', status => 401);
+            return undef;
+        }
+    )
+};
+
+my $memcache = LogBot::MemCache->new(binary => $is_production);
+render_init($RealBin);
+
+# per-request initialisation
+under sub {
+    my ($c) = @_;
+
+    # determine current config
+    my $config_index = 0;
+    if (scalar(@{$networks}) > 1) {
+        my $host = lc($c->req->url->to_abs->host);
+        my $dot_posn = index($host, '.');
+        if ($dot_posn != -1) {
+            $host = substr($host, 0, $dot_posn);
+            for (my $i = 0; $i < scalar(@{$networks}); $i++) {
+                next unless $networks->[$i]->{name} eq $host;
+                $config_index = $i;
+                last;
+            }
+        }
+    }
+
+    # reload config
+    $networks->[$config_index] = reload_config($networks->[$config_index]);
+    my $config = $networks->[$config_index];
+
+    # store network name in response header for logging
+    $c->res->headers->add('X-Network' => $config->{name});
+
+    # for client-side list cache
+    my $topics_lastmod = file_time(file_for($config, 'topics_lastmod')) // 0;
+
+    $c->stash(
+        config          => $config,
+        networks        => $networks,
+        network         => $config->{name},
+        channels        => $config->{_derived}->{visible_channels},
+        topics          => channel_topics($config),
+        channel         => '',
+        date            => '',
+        error           => '',
+        event_count     => 0,
+        bot_event_count => 0,
+        page            => '',
+        today           => DateTime->now()->truncate(to => 'day'),
+        is_today        => 0,
+        cache_prefix    => $config->{_derived}->{time} . '.' . $config->{name} . '.',
+        channel_list_id => $config->{_derived}->{time} . '.' . $topics_lastmod,
+        topics_lastmod  => $topics_lastmod,
+    );
+    return 1;
+};
+
+#
+
+# default => about logbot || search
+get '/' => sub {
+    my ($c) = @_;
+
+    # redirect old urls
+    if (my $url = rewrite_old_urls($c)) {
+
+        # url was formed server-side, no need to bounce through js redirect
+        if ($url !~ /#/) {
+            return $c->redirect_to($url);
+        }
+
+        $c->stash(redirect_to => $url);
+        return $c->render('redirect');
+    }
+
+    # search
+    my $q = $c->req->query_params->param('q');
+    if (defined($q)) {
+        LogBot::Web::Search::render($c, $q);
+
+    } else {
+
+        # index
+        LogBot::Web::Index::render($c);
+    }
+};
+
+# config
+get '/_config' => sub {
+    my ($c) = @_;
+    LogBot::Web::Config::render($c);
+};
+
+# channel list
+get '/_channels' => sub {
+    my ($c) = @_;
+    LogBot::Web::List::render($c);
+};
+
+get '/_channels_body' => sub {
+    my ($c) = @_;
+    LogBot::Web::List::render($c, { body_only => 1 });
+};
+
+# network stats
+get '/_stats' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render($c);
+};
+
+get '/_stats/meta' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render_meta($c);
+};
+
+get '/_stats/hours' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render_hours($c);
+};
+
+# debugging
+if (!$is_production) {
+    get '/_stash' => sub {
+        my ($c) = @_;
+        $c->stash(today => $c->stash('today')->ymd());
+        $c->render(text => dumper($c->stash), format => 'txt');
+    };
+}
+
+# robots.txt
+my $robots_txt = <<'EOF';
+# http://law.di.unimi.it/BUbiNG.html
+# 20% of my traffic was from this bot
+User-agent: BUbiNG
+Disallow: /
+
+# Marketing/SEO bot
+User-agent: SemrushBot
+Disallow: /
+User-agent: SemrushBot-SA
+Disallow: /
+EOF
+get '/robots.txt' => sub {
+    my ($c) = @_;
+    $c->render(text => $robots_txt, format => 'txt');
+};
+
+# /channel => redirect to current date
+get '/#channel' => sub {
+    my ($c) = @_;
+    my $channel = channel_from_param($c) // return;
+
+    # redirect to current date
+    my $path = $c->req->url->path;
+    $path .= '/' unless substr($path, -1) eq '/';
+    $c->redirect_to($path . time_to_ymd(time()));
+};
+
+# /channel/date => show logs
+get '/#channel/:date' => [date => qr/\d{8}/] => sub {
+    my ($c) = @_;
+    LogBot::Web::Channel::render_logs($c);
+};
+
+get '/#channel/:date/raw' => [date => qr/\d{8}/] => sub {
+    my ($c) = @_;
+    LogBot::Web::Channel::render_raw($c);
+};
+
+get '/#channel/link/:time/:nick' => [time => qr /\d+/] => sub {
+    my ($c) = @_;
+    LogBot::Web::Channel::redirect_to($c);
+};
+
+get '/#channel/stats' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render($c, require_channel => 1);
+};
+
+get '/#channel/stats/meta' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render_meta($c, require_channel => 1);
+};
+
+get '/#channel/stats/hours' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render_hours($c);
+};
+
+get '/#channel/stats/nicks' => sub {
+    my ($c) = @_;
+    LogBot::Web::Stats::render_nicks($c);
+};
+
+# 404 handler
+any '*' => sub {
+    my ($c) = @_;
+    $c->res->code(404);
+    $c->res->message('Not Found');
+    LogBot::Web::Index::render($c, { error => 'Not Found.' });
+};
+
+my %cache;
+
+# static file with timestamp
+helper static => sub {
+    my ($c, $file) = @_;
+    return $cache{static}->{$file} //= '/static/' . $file . '?' . file_time($RealBin . '/web/public/static/' . $file);
+};
+
+# inline svg
+helper svg => sub {
+    my ($c, $file) = @_;
+    return $cache{svg}->{$file} //= Mojo::ByteStream->new(slurp($RealBin . '/web/svg/' . $file . '.svg'));
+};
+
+# linkify text
+helper linkify => sub {
+    my ($c, $text) = @_;
+    return linkify($text);
+};
+
+# cache
+helper cached => sub {
+    my ($c, $key, $callback) = @_;
+    return $key eq ''
+        ? $callback->()
+        : Mojo::ByteStream->new($memcache->cached($c->stash('cache_prefix') . $key, $callback));
+};
+
+hook after_render => sub {
+    my ($c, $output, $format) = @_;
+    my $headers = $c->res->headers;
+
+    # CSP
+    state $csp = join(
+        '; ',
+        q{default-src 'self'},
+        q{object-src 'none'},
+        q{frame-ancestors 'none'},
+        q{base-uri 'none'},
+        q{style-src 'self' 'unsafe-inline'},  # unsafe-inline for chosen, top-nick graph
+        q{img-src 'self' data:},              # data: for pikaday
+    );
+    $headers->header('Content-Security-Policy' => $csp);
+
+    # preload fonts
+    state $link = join(', ',
+        map { '<' . $c->url_for($_)->to_abs . '>; rel=preload; as=font' }
+            qw( /static/hind-regular.ttf /static/hind-medium.ttf /static/hind-bold.ttf ));
+    $headers->header(Link => $link);
+
+    # no need to expose this info
+    $headers->remove('Server');
+
+    # gzip compression
+    if (($c->req->headers->accept_encoding // '') =~ /gzip/i) {
+        $headers->append(Vary => 'Accept-Encoding');
+        $headers->content_encoding('gzip');
+        gzip($output, \my $compressed);
+        ${$output} = $compressed;
+    }
+};
+
+app->start;

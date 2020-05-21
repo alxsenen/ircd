@@ -1,0 +1,691 @@
+#!/usr/bin/perl
+# bare-bones irc logging bot
+# saves events as json files for processing
+use local::lib;
+use v5.10;
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use lib "$RealBin/lib";
+
+BEGIN { $ENV{TZ} = 'UTC' }
+
+use Data::Dumper qw( Dumper );
+use Encode qw( decode );
+use Encode::Guess;
+use Errno qw( ETIMEDOUT EWOULDBLOCK );
+use IO::Socket::INET ();
+use IO::Socket::SSL qw( $SSL_ERROR );
+use IO::Socket::Timeout ();
+use List::MoreUtils qw( natatime );
+use List::Util qw( any min );
+use LogBot::Config qw( find_config load_config reload_config save_config );
+use LogBot::JobQueue;
+use LogBot::MemCache ();
+use LogBot::Util qw( file_for logbot_init normalise_channel slurp source_to_nick squash_error timestamp touch );
+use Mojo::Log ();
+use Readonly;
+use Time::HiRes ();
+use Try::Tiny qw( catch try );
+
+# globals
+my ($config, $state, $connection, $job_queue, $log, $memcache);
+
+#
+
+# read message from irc server, or undef if no message ready or disconnected
+sub irc_read {
+    return undef unless $connection;
+    my $message = $connection->getline();
+
+    # timeout
+    if (!$message && (0 + $! == ETIMEDOUT || 0 + $! == EWOULDBLOCK)) {
+        return undef;
+    }
+
+    # disconnect
+    if (!defined $message) {
+        undef $connection;
+        return undef;
+    }
+
+    $message =~ s/^\@\S+ +//;  # strip tags
+    $message =~ s/[\r\n]+$//;  # strip eol
+    if (substr($message, 0, 1) ne ':') {  # add source
+        $message = ':- ' . $message;
+    }
+
+    # print all server messages (except ping/pong to reduce noise)
+    say timestamp(), ' << ', $message
+        if ($message !~ /^:\S+ P[IO]NG /) || $ENV{DEBUG};
+    return $message;
+}
+
+# send raw irc command to server
+sub irc_send {
+    my ($message) = @_;
+
+    # print all client messages (except ping/pong to reduce noise)
+    say timestamp(), ' >> ', $message
+        if ($message !~ /^P[IO]NG /) || $ENV{DEBUG};
+    $connection->print($message . "\r\n");
+}
+
+# send private message
+sub irc_send_message {
+    my ($target, $message) = @_;
+    irc_send('PRIVMSG ' . $target . ' :' . $message);
+}
+
+# connect to irc server
+sub irc_connect {
+    my $irc_host = $config->{irc}->{host};
+    my $ssl = $irc_host =~ s/^ssl:// || $irc_host =~ /:6697$/;
+    say timestamp(), ' -- connecting to irc on ', $irc_host, ($ssl ? ' (ssl)' : '');
+    if ($ssl) {
+        $connection = IO::Socket::SSL->new($irc_host)
+            or die "connection to $irc_host failed: $! $SSL_ERROR\n";
+    } else {
+        $connection = IO::Socket::INET->new($irc_host)
+            or die "connection to $irc_host failed: $@\n";
+    }
+    IO::Socket::Timeout->enable_timeouts_on($connection);
+    $connection->read_timeout(0.5);
+
+    # login
+    irc_send('USER ' . $config->{irc}->{nick} . ' 0 * :' . $config->{irc}->{real_name});
+    irc_send('NICK ' . $config->{irc}->{nick});
+
+    # wait for connect (end of motd)
+    while (1) {
+        my $message = irc_read();
+        die 'Disconnected' . ($ssl ? '' : ' (possible SSL mismatch)') . "\n" unless $connection;
+        exit if $state->{quit};
+        next unless $message;
+        if ($message =~ /^:\S+ PING (.+)/) {
+            irc_send('PONG ' . $1);
+            next;
+        }
+        next unless $message =~ /^:(\S+) (\d+) /;
+        my ($server, $code) = ($1, $2);
+        die 'Nick ' . $config->{irc}->{nick} . " in use\n" if $code eq '433';  # ERR_NICKNAMEINUSE
+        if ($code eq '376') {                                                  # RPL_ENDOFMOTD
+            $state->{server} = $server;
+            last;
+        }
+    }
+
+    # identify
+    if ($config->{irc}->{password}) {
+        irc_send_message('NickServ', 'identify ' . $config->{irc}->{password});
+    }
+}
+
+sub block_invite {
+    my ($source, $channel) = @_;
+    my $who = source_to_nick($source);
+
+    foreach my $blocked (@{ $config->{blocked} }) {
+        if (substr($blocked, 0, 1) eq '#') {
+            return 1 if $blocked eq $channel;
+
+        } else {
+            my $umask = quotemeta(lc($blocked));
+            $umask =~ s/\\\*/[\x01-\xFF]{0,}/g;
+            $umask =~ s/\\\?/[\x01-\xFF]{1,1}/g;
+            return 1 if lc($source) =~ /^$umask$/;
+        }
+    }
+
+    return 0;
+}
+
+sub init_logging {
+    $log = Mojo::Log->new(
+        path => ($config->{_derived}->{is_dev} ? 'log' : '/var/log/logbot') . '/irc_' . $config->{name} . '.log',
+        level => 'info',
+    );
+}
+
+#
+
+# publish event to processing queue
+sub publish {
+    my ($type, $nick, $channel, $text) = @_;
+
+    return unless exists $config->{channels}->{$channel};
+    return if $config->{channels}->{$channel}->{no_logs};
+
+    try {
+        # decode
+        my $utf8 = guess_encoding($text, 'utf8');
+        $text = $utf8 ? decode('utf8', $text) : decode('cp1252', $text);
+
+        # strip colours, formatting
+        $text =~ s/\x03(?:,\d{1,2}|\d{1,2}(?:,\d{1,2})?)?//g;  # mirc
+        $text =~ s/\x04[0-9a-fA-F]{0,6}//g;                    # rgb
+        $text =~ s/\x1B\[.*?[\x00-\x1F\x40-\x7E]//g;           # ecma-84
+        $text =~ s/[\x02\x1f\x16\x1d\x11\x06]//g;              # formatting
+        $text =~ s/\x0f//g;                                    # cancellation
+
+        $job_queue->publish_job(
+            {
+                time    => Time::HiRes::time(),
+                channel => $channel,
+                type    => $type,
+                nick    => $nick,
+                text    => $text,
+            }
+        );
+    }
+    catch {
+        say timestamp(), ' !! ', squash_error($_);
+        $log->error(squash_error($_));
+    };
+}
+
+#
+
+# init config
+$config = load_config(find_config(shift))
+    // die "syntax: logbot-irc <config file> [--reload][--cyclelogs][--debug][--quit]\n";
+
+# pid
+my $pid_file = file_for($config, 'pid', 'logbot-irc');
+my $pid = 0;
+if (-e $pid_file) {
+    chomp($pid = slurp($pid_file));
+    $pid = 0 unless kill(0, $pid);
+}
+
+# commands / signals
+if (@ARGV) {
+    if ($ARGV[0] eq '--reload') {
+        $pid || die 'logbot-irc (' . $config->{name} . ") is not running\n";
+        kill('HUP', $pid);
+        say "reload request sent to pid $pid";
+    } elsif ($ARGV[0] eq '--debug') {
+        $pid || die 'logbot-irc (' . $config->{name} . ") is not running\n";
+        kill('USR1', $pid);
+        say "debug-dump request sent to pid $pid";
+    } elsif ($ARGV[0] eq '--cyclelogs') {
+        $pid || die 'logbot-irc (' . $config->{name} . ") is not running\n";
+        kill('USR2', $pid);
+        say "cyclelogs request sent to pid $pid";
+    } elsif ($ARGV[0] eq '--quit') {
+        $pid || die 'logbot-irc (' . $config->{name} . ") is not running\n";
+        kill('INT', $pid);
+        say "quit request sent to pid $pid";
+    } else {
+        die "unrecognised parameter\n";
+    }
+    exit;
+}
+
+# init
+STDOUT->autoflush(1);
+$pid && die 'logbot-irc (' . $config->{name} . ") is already running\n";
+logbot_init($config);
+init_logging();
+$job_queue = LogBot::JobQueue->new($config);
+$memcache = LogBot::MemCache->new(binary => !$config->{_derived}->{is_dev});
+
+# init signals and state
+$SIG{HUP} = sub {
+    $state->{next_channel_reload} = time();
+};
+$SIG{USR1} = sub { $state->{dump}  = 1 };
+$SIG{USR2} = sub { $state->{relog} = 1 };
+$SIG{INT}  = sub { $state->{quit}  = 1 };
+$state->{pending_invites} = {};
+
+# event loop
+while (1) {
+
+    # connect/reconnect
+    while (!$connection) {
+        exit if $state->{quit};
+
+        try {
+            # try to connect
+            irc_connect();
+
+            # connected, setup initial state
+            $log->info('connected to ' . $config->{irc}->{host});
+            delete $state->{backoff};
+            $state->{next_channel_reload} = time();
+            $state->{next_topic_reload}   = time() + 5 * 60;
+            $state->{next_ping}           = time() + $config->{timing}->{initial_ping_delay};
+            $state->{pong_timeouts}       = 0;
+            $state->{touch_file}          = file_for($config, 'connected');
+            touch($state->{touch_file});
+        }
+        catch {
+            # connection failed, retry with backoff
+            say timestamp(), ' !! ', squash_error($_);
+            $log->error(squash_error($_));
+            undef($connection);
+            $state->{backoff} = min(($state->{backoff} // 1) * 2, $config->{timing}->{max_reconnect_interval});
+            say timestamp(), ' ** sleeping for ', $state->{backoff} if $ENV{DEBUG};
+            sleep($state->{backoff});
+        };
+    }
+
+    my $message = irc_read();
+    my $time    = time();
+
+    # ping timer
+    if (exists $state->{pong_timeout} && $state->{pong_timeout} <= $time) {
+        $state->{pong_timeouts}++;
+        $state->{next_ping} = $time;
+        say timestamp(), ' !! PING timeout (', $state->{pong_timeouts}, ')';
+        $log->error('PING timeout (' . $state->{pong_timeouts} . ')');
+
+        # server not responding to our pings, reconnect
+        if ($state->{pong_timeouts} == $config->{timing}->{ping_timeout_attempts}) {
+            undef($connection);
+            next;
+        }
+
+    }
+    if (exists $state->{next_ping} && $state->{next_ping} <= $time) {
+        delete $state->{next_ping};
+        $state->{pong_timeout} = $time + $config->{timing}->{ping_timeout};
+        irc_send('PING :' . $state->{server});
+    }
+
+    # update stored channel topics
+    if (exists $state->{next_topic_reload} && $state->{next_topic_reload} <= $time) {
+        if (keys %{ $state->{channels_in} }) {
+            say timestamp(), ' -- refresh topics';
+            $state->{pending_topics}      = [sort keys %{ $state->{channels_in} }];
+            $state->{next_pending_topics} = $time;
+        }
+        $state->{next_topic_reload} = time() + $config->{timing}->{topic_reload_interval};
+    }
+
+    if (exists $state->{next_pending_topics} && $state->{next_pending_topics} <= $time) {
+        irc_send('TOPIC ' . shift(@{ $state->{pending_topics} }));
+        if (@{ $state->{pending_topics} }) {
+            $state->{next_pending_topics} = time() + 1;
+        } else {
+            delete $state->{next_pending_topics};
+            delete $state->{pending_topics};
+        }
+    }
+
+    # trigger reconciliation of joined channels
+    if (exists $state->{next_channel_reload} && $state->{next_channel_reload} <= $time) {
+        say timestamp(), ' -- reload channel config';
+        delete $state->{next_channel_reload};
+        $state->{channels_reconcile} = {};
+        irc_send('WHOIS ' . $config->{irc}->{nick});
+    }
+
+    # dump config and state on SIGUSR1
+    if (delete $state->{dump}) {
+        print Dumper($config);
+        print Dumper($state);
+    }
+
+    # drop log handle on SIGUSR2
+    if (delete $state->{relog}) {
+        say timestamp(), ' -- cycling logs';
+        init_logging();
+    }
+
+    # quit cleanly when requested
+    if (delete $state->{quit}) {
+        say timestamp(), ' -- quit requested';
+        $log->info('quitting');
+        irc_send('QUIT');
+        last;
+    }
+
+    next unless $message;
+
+    # server initiated ping
+    if ($message =~ /^:\S+ PING (.+)/) {
+        irc_send('PONG ' . $1);
+        next;
+    }
+
+    # response to our ping
+    if ($message =~ /^:\S+ PONG /) {
+        delete $state->{pong_timeout};
+        $state->{pong_timeouts} = 0;
+        $state->{next_ping}     = $time + $config->{timing}->{ping_interval};
+        touch($state->{touch_file});
+        next;
+    }
+
+    # invited
+    if ($message =~ /^:(\S+) INVITE \S+ :(#.+)/) {
+        my ($source, $channel) = ($1, normalise_channel($2));
+        my $who = source_to_nick($source);
+        $config = reload_config($config);
+
+        # honour invite blocklist
+        if (block_invite($source, $channel)) {
+            say timestamp(), ' -- ignoring invite to blocked ', $channel, ' from ', $source;
+            $log->info('ignoring invite to blocked ' . $channel . ' from ' . $source);
+            next;
+        }
+
+        # ignore no-op invites
+        if ($state->{channels_in}->{$channel}) {
+            say timestamp(), ' -- ignoring invite to already-in ', $channel, ' from ', $who;
+            $log->info('ignoring invite to already-in ' . $channel . ' from ' . $who);
+            next;
+        }
+
+        # can't log channels starting with underscores - used for internal web calls
+        if (substr($channel, 1, 1) eq '_') {
+            irc_send_message($who, 'unable to join ' . $channel . ': unable to log channels starting with underscore');
+            $log->info('rejecting invite to underscored ' . $channel . ' from ' . $who);
+            next;
+        }
+
+        # can't log channels starting with # - confuses channel normalisation
+        if (substr($channel, 1, 1) eq '#') {
+            irc_send_message($who, 'unable to join ' . $channel . ': unable to log channels starting with ##');
+            $log->info('rejecting invite to double-hashes ' . $channel . ' from ' . $who);
+            next;
+        }
+
+        # cooldown
+        my $cooldown_key = $config->{name} . $channel . ',' . $source;
+        if (my $last_request = $memcache->get($cooldown_key)) {
+            if ($time - $last_request < $config->{timing}->{invite_cooldown}) {
+                irc_send_message($who, "unable to join $channel: please wait longer before asking again");
+                $log->info("rejecting invite to $channel from $who: cooldown expires in "
+                        . ($config->{timing}->{invite_cooldown} - ($time - $last_request))
+                        . 's');
+                next;
+            }
+        }
+
+        $state->{pending_invites}->{$channel} = {
+            who          => lc($who),
+            source       => $source,
+            ops          => [],
+            cooldown_key => $cooldown_key,
+        };
+        irc_send('JOIN ' . $channel);
+        next;
+    }
+
+    # joined
+    if ($message =~ /^:(\S+) JOIN :(#.+)/) {
+        my ($who, $channel) = (source_to_nick($1), normalise_channel($2));
+        next unless $who eq $config->{irc}->{nick};
+
+        # if we're joining due to an invite, check the requester is an op
+        if (exists $state->{pending_invites}->{$channel}) {
+            say timestamp(), ' ** found pending-invite for ', $channel if $ENV{DEBUG};
+            irc_send('NAMES ' . $channel);
+            next;
+        }
+
+        $state->{channels_in}->{$channel} = 1;
+        irc_send('MODE ' . $channel);  # trigger mode to grab channel password
+        next;
+    }
+
+    # parted
+    if ($message =~ /^:(\S+) PART :(#.+)/) {
+        my ($who, $channel) = (source_to_nick($1), normalise_channel($2));
+        next unless $who eq $config->{irc}->{nick};
+
+        delete $state->{channels_in}->{$channel};
+        next;
+    }
+
+    # RPL_NAMREPLY (pending-invites)
+    if ($message =~ /^:\S+ 353 (\S+) . (#\S+) :(.+)$/) {
+        my ($who, $channel, $nicks) = ($1, normalise_channel($2), $3);
+        next unless $who eq $config->{irc}->{nick};
+        next unless exists $state->{pending_invites}->{$channel};
+
+        # ~owners, &admins, and @ops (note this excludes %half-ops)
+        foreach my $nick (split(' ', $nicks)) {
+            next unless $nick =~ s/^[~&@]//;
+            push @{ $state->{pending_invites}->{$channel}->{ops} }, lc($nick);
+        }
+        next;
+    }
+
+    # RPL_ENDOFNAMES (pending-invites)
+    if ($message =~ /^:\S+ 366 (\S+) (#\S+) :/) {
+        my ($who, $channel) = ($1, normalise_channel($2));
+        next unless $who eq $config->{irc}->{nick};
+        next unless exists $state->{pending_invites}->{$channel};
+
+        my $invite = delete $state->{pending_invites}->{$channel};
+        if ($ENV{DEBUG}) {
+            say timestamp(), ' ** ', $channel, ' invited by: ', $invite->{who};
+            say timestamp(), ' ** ', $channel, ' ops: ', join(' ', @{ $invite->{ops} });
+        }
+
+        if (any { $_ eq $invite->{who} } @{ $invite->{ops} }) {
+            say timestamp(), ' -- joined ', $channel, ' via invite from ', $invite->{source};
+            $log->info('joined ' . $channel . ' via invite from ' . $invite->{source});
+
+            $config->{channels}->{$channel}->{invite} = timestamp() . ' <' . $invite->{source} . '>';
+            delete $config->{channels}->{$channel}->{disabled};
+            delete $config->{channels}->{$channel}->{archived};
+            save_config($config);
+
+            $state->{channels_in}->{$channel} = 1;
+            irc_send('MODE ' . $channel);  # trigger mode to grab channel password
+
+            my $url = $config->{url} . substr($channel, 1);
+            my $announcement = 'channel logging requested by ' . $invite->{who} . ': ' . $url;
+            irc_send_message($channel, $announcement);
+            publish(0, $config->{irc}->{nick}, $channel, $announcement);
+
+        } else {
+            say timestamp(), ' -- join ', $channel, ' rejected - non-op invite from ', $invite->{source};
+            $log->info('join ' . $channel . ' rejected - non-op invite from ' . $invite->{source});
+
+            irc_send('PART ' . $channel);
+            irc_send_message($invite->{who}, 'unable to join ' . $channel . ': you are not a channel op');
+            $memcache->set($invite->{cooldown_key} => $time);
+
+        }
+        next;
+    }
+
+    # join failed
+    # NOSUCHCHANNEL, TOOMANYCHANNELS NEEDMOREPARAMS, INVITEONLYCHAN, BANNEDFROMCHAN, BADCHANNELKEY
+    if ($message =~ /^:\S+ (403|405|461|471|473|474|475) (\S+) (#\S+) :(.+)/) {
+        my ($code, $who, $channel, $text) = ($1, normalise_channel($2), $3);
+        next unless $who eq $config->{irc}->{nick};
+        say timestamp(), ' -- join ', $channel, ' failed: ', $text;
+        $log->error('join ' . $channel . ' failed: ' . $text);
+        delete $state->{channels_in}->{$channel};
+        $config->{channels}->{$channel}->{error} = timestamp() . ' ' . $text;
+        $config->{channels}->{$channel}->{archived} = ($code == 405 ? 1 : 0);
+        save_config($config);
+
+        if (my $invite = delete $state->{pending_invites}->{$channel}) {
+            irc_send_message($invite->{who}, 'unable to join ' . $channel . ': ' . $text);
+        }
+        next;
+    }
+
+    # unable to send to channel - likely means we've been banned and then invited back
+    # treat the same as banned and leave the channel
+    if ($message =~ /^:\S+ 404 (\S+) (#\S+) :(.+)/) {
+        my ($who, $channel, $text) = ($1, normalise_channel($2), $3);
+        next unless $who eq $config->{irc}->{nick};
+        say timestamp(), ' -- join ', $channel, ' failed: ', $text;
+        $log->error('join ' . $channel . ' failed: ' . $text);
+        delete $state->{channels_in}->{$channel};
+        $config->{channels}->{$channel}->{archived} = 0;
+        $config->{channels}->{$channel}->{error}    = timestamp() . ' ' . $text;
+        save_config($config);
+        irc_send('PART ' . $channel . ' I\'m banned from this channel');
+        next;
+    }
+
+    # mode --> extract channel password
+    if ($message =~ /^:\S+ 324 \S+ (#\S+) (\S+) (\S+)/) {
+        my ($channel, $mode, $password) = (normalise_channel($1), $2, $3);
+        next unless $mode =~ /k/;
+        next if ($config->{channels}->{$channel}->{password} // '') eq $password;
+        $config->{channels}->{$channel}->{password} = $password;
+        save_config($config);
+        next;
+    }
+
+    # when kicked track why, and don't try to rejoin
+    if ($message =~ /^:(\S+) KICK (#\S+) (\S+) :(.*)/) {
+        my ($who, $channel, $kicked, $text) = (source_to_nick($1), normalise_channel($2), $3, $4);
+        next unless $kicked eq $config->{irc}->{nick};
+        $text = 'kicked' if ($text // '') eq '';
+        say timestamp(), ' -- kicked from ', $channel, ' by ', $who, ': ', $text;
+        $log->info('kicked from ' . $channel . ' by ' . $who . ': ' . $text);
+        delete $state->{channels_in}->{$channel};
+        $config->{channels}->{$channel}->{disabled} = 1;
+        $config->{channels}->{$channel}->{kick}     = timestamp() . ' <' . $who . '> ' . $text;
+        save_config($config);
+        next;
+    }
+
+    # channel /me ctcp action
+    if ($message =~ /^:(\S+) PRIVMSG (#\S+) :\x01ACTION (.+)\x01/) {
+        publish(1, source_to_nick($1), normalise_channel($2), $3);
+        next;
+    }
+
+    # channel message
+    if ($message =~ /^:(\S+) PRIVMSG (#\S+) :(.+)/) {
+        publish(0, source_to_nick($1), normalise_channel($2), $3);
+        next;
+    }
+
+    # channel notice
+    if ($message =~ /^:(\S+) NOTICE (#\S+) :(.+)/) {
+        publish(2, source_to_nick($1), normalise_channel($2), $3);
+        next;
+    }
+
+    # topic updated
+    if ($message =~ /^:\S+ TOPIC (#\S+) :(.+)/) {
+        publish(3, '-', normalise_channel($1), $2);
+        next;
+    }
+
+    # topic (RPL_NOTOPIC, RPL_TOPIC)
+    if ($message =~ /^:\S+ (331|332) \S+ (#\S+) :(.+)/) {
+        publish(3, '-', normalise_channel($2), $1 eq '331' ? '' : $3);
+        next;
+    }
+
+    # private message
+    if ($message =~ /^:(\S+) PRIVMSG \S+ :.+/) {
+        my $who = source_to_nick($1);
+        irc_send_message($who, $config->{help}) if $config->{help};
+    }
+
+    # channel reconciliation RPL_WHOISCHANNELS
+    if ($message =~ /^:\S+ 319 \S+ \S+ :(.+)/) {
+        my $channels = $1;
+        foreach my $channel (split(' ', $channels)) {
+            $channel =~ s/^[^#]+//;  # strip usermode prefix
+            $state->{channels_reconcile}->{ normalise_channel($channel) } = 1;
+        }
+        next;
+    }
+
+    # channel reconciliation RPL_ENDOFWHOIS
+    if ($message =~ /^:\S+ 318 /) {
+        $config = reload_config($config);
+
+        # join channels
+        my @join;
+        foreach my $channel (sort keys %{ $config->{channels} }) {
+            next if $config->{channels}->{$channel}->{disabled};
+            next if $config->{channels}->{$channel}->{archived};
+
+            # update channels_in (in)
+            if ($state->{channels_reconcile}->{$channel}) {
+                $state->{channels_in}->{$channel} = 1;
+                next;
+            }
+
+            # join channels with passwords immediately
+            if (exists $config->{channels}->{$channel}->{password}) {
+                irc_send('JOIN ' . $channel . ' ' . $config->{channels}->{$channel}->{password});
+                $log->info('joining ' . $channel);
+            } else {
+                push @join, $channel;
+            }
+        }
+
+        # 10 at a time
+        my $iter = natatime(10, @join);
+        while (my @join_channels = $iter->()) {
+            irc_send('JOIN ' . join(',', @join_channels));
+            $log->info('joining ' . join(' ', @join_channels));
+        }
+
+        # part channels
+        my @part;
+        foreach my $channel (sort keys %{ $state->{channels_reconcile} }) {
+            next if $config->{channels}->{$channel};
+            push @part, $channel;
+        }
+
+        # 10 at a time
+        $iter = natatime(10, @part);
+        while (my @part_channels = $iter->()) {
+            irc_send('PART ' . join(',', @part_channels));
+            $log->info('parting ' . join(' ', @part_channels));
+        }
+
+        # update channels_in (out)
+        foreach my $channel (sort keys %{ $state->{channels_in} }) {
+            next if $state->{channels_reconcile}->{$channel};
+            $log->info('unexpectedly no longer in ' . $channel);
+            delete $state->{channels_in}->{$channel};
+        }
+
+        delete $state->{channels_reconcile};
+        $state->{next_channel_reload} = time() + $config->{timing}->{channel_reload_interval};
+        next;
+    }
+}
+
+__END__
+
+connect
+    -> channel reload
+    -> +5m topic reload
+
+channel reload
+    -> WHOIS logbot
+        <= RPL_WHOISCHANNELS
+            - collect channels in
+        <= RPL_ENDOFWHOIS
+            - diff channels-in with config
+            - join/part as required
+
+topic reload
+    -> TOPIC (foreach channel)
+        <= RPL_TOPIC / RPL_NOTOPIC
+            - update stored topic
+
+invite to channel
+    <= INVITE
+        - store invite request
+        -> JOIN channel
+    <= JOINED pending invite channel
+        -> NAMES channel
+    <= RPL_NAMREPLY pending invite channel
+        - collect owners, admins, and ops
+    <= RPL_ENDOFNAMES pending invite channel
+        - if invite from owner/admin/op update config
+        - otherwise PART
