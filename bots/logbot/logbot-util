@@ -1,0 +1,55 @@
+#!/usr/bin/perl
+use local::lib;
+use v5.10;
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use lib "$RealBin/lib";
+
+BEGIN {
+    $ENV{TZ} = 'UTC';
+}
+$| = 1;
+
+use List::Util qw( first );
+use LogBot::Config qw( find_config load_all_configs load_config );
+use Module::Load qw( load );
+use Mojo::Util qw( trim );
+use Try::Tiny qw( catch try );
+
+my @configs;
+if (@ARGV && $ARGV[0] eq '--all') {
+    shift;
+    @configs = values %{ load_all_configs(all => !!$ENV{DEBUG}) };
+} else {
+    push @configs, load_config(find_config(shift));
+}
+
+my @commands;
+foreach my $file (glob("$RealBin/lib/LogBot/CLI/*.pm")) {
+    (my $class = substr($file, length("$RealBin/lib/"), -3)) =~ s{/}{::}g;
+    load($file);
+    push @commands, $class->manifest();
+    $commands[-1]->{class} = $class;
+}
+@commands = sort { $a->{command} cmp $b->{command} } @commands;
+
+my ($command, @args) = (lc(shift // ''), @ARGV);
+$command = first { $_->{command} eq $command } @commands;
+
+unless (@configs && $command) {
+    my $usage = "syntax: logbot-util <config>|--all <command> [command args]\ncommands:\n";
+    foreach my $c (@commands) {
+        $usage .= sprintf("  %-16s %s\n", $c->{command}, $c->{help});
+    }
+    die $usage;
+}
+
+try {
+    $command->{class}->execute(\@configs, @args);
+}
+catch {
+    my $error = trim($_);
+    die $error eq 'syntax' ? 'syntax: logbot-util <config>|--all ' . $command->{usage} . "\n" : "$error\n";
+};

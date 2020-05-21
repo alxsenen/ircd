@@ -53,7 +53,7 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header x-forwarded-for $remote_addr;
 
-        proxy_pass http://lcloud02.segured.org:9090;
+        proxy_pass http://51.161.8.91:8080;
         proxy_redirect default;
 
         # Websocket support (from version 1.4)
