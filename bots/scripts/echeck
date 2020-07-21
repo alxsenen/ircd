@@ -1,8 +1,0 @@
-PID=$(pidof 'eggdrop') 
-if [[ -z "$PID" ]] 
-then
-    cd ~/eggdrop; ./eggdrop tux.conf
-    cd ~/eggdrop; ./eggdrop gandalf.conf
-else
-    echo "Eggdrop ($PID) is running" 
-fi
